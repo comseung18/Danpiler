@@ -59,14 +59,16 @@ digraph NFA {
 
 위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다:
 ![image](src/test/kotlin/nfa.png)
+#### ( ε 은 빈 문자 간선 )
+
 
 #### 3. NFA 그래프 출력
 위의 Dot 파일을 Graphviz를 사용하여 NFA 그래프를 생성할 수 있습니다. 예시로 nfa.dot 파일을 사용하여 NFA 그래프를 PNG 이미지로 생성하는 방법은 다음과 같습니다:
-
+```
 dot -Tpng nfa.dot -o nfa_graph.png
-
+```
 이 명령어를 실행하면 nfa_graph.png라는 이미지 파일이 생성됩니다.
-( ε 은 빈 문자 간선 )
+
 
 ### DFA
 
