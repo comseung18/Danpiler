@@ -5,7 +5,8 @@ Compilers : Principles, Techniques &amp; Tools 를 읽고 어휘 분석기부터
 ## 어휘분석기
 
 ### NFA
-**정규식**을 입력받아 이를 **NFA (Nondeterministic Finite Automaton)**로 변환하고, 이를 그래픽적으로 시각화하기
+**정규식**을 입력받아 이를 **NFA (Nondeterministic Finite Automaton)**로 변환하고, 이를 그래픽적으로 시각화할 수 있습니다.
+
 입력된 정규식을 NFA로 변환할 수 있습니다. 변환한 NFA 로 정규식 매칭을 할 수 있고 NFATest.kt 를 참조하세요.
 
 변환된 NFA는 **Dot 파일** 형식으로 출력되고, 이를 **Graphviz**를 사용하여 그래프 형태로 시각화할 수 있습니다.
