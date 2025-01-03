@@ -71,6 +71,49 @@ dot -Tpng nfa.dot -o nfa_graph.png
 
 
 ### DFA
+**정규식**을 입력받아 생성된 **NFA**를 **DFA (Deterministic Finite Automaton)**로 변환하고, 이를 그래픽적으로 시각화할 수 있습니다.
+DFA는 NFA에 비해 더 효율적으로 정규식을 매칭할 수 있으며, 불필요한 상태를 제거하여 최적화된 상태로 동작합니다.
+
+
+#### 동작 예시
+##### 1. NFA → DFA 변환
+
+입력된 NFA를 기반으로 DFA를 생성합니다. ( toDFA 함수 )
+다음은 변환된 DFA의 Dot 파일 예시입니다:
+
+입력 정규식:"a|b*c|d(e|f)*g" ( NFA 예시와 동일 )
+
+```dot
+digraph DFA {
+  rankdir=LR;
+  size="8,5";
+
+  start [shape=point];
+  25 [shape=doublecircle];
+  start -> 24 [ label = "ε" ];
+  24 -> 26 [ label = "a" ];
+  24 -> 27 [ label = "c" ];
+  24 -> 28 [ label = "b" ];
+  24 -> 29 [ label = "d" ];
+  26 -> 25 [ label = "ε" ];
+  27 -> 25 [ label = "ε" ];
+  28 -> 27 [ label = "c" ];
+  28 -> 28 [ label = "b" ];
+  29 -> 30 [ label = "g" ];
+  29 -> 31 [ label = "e" ];
+  29 -> 32 [ label = "f" ];
+  30 -> 25 [ label = "ε" ];
+  31 -> 30 [ label = "g" ];
+  31 -> 31 [ label = "e" ];
+  31 -> 32 [ label = "f" ];
+  32 -> 30 [ label = "g" ];
+  32 -> 31 [ label = "e" ];
+  32 -> 32 [ label = "f" ];
+}
+```
+
+위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다:
+![image](src/test/kotlin/dfa.png)
 
 ### Tokenizing
 
