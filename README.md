@@ -112,7 +112,7 @@ digraph DFA {
 }
 ```
 
-위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다:
+위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA 와 비교할 때 Node 숫자 24 -> 9 개로 감소 )
 ![image](src/test/kotlin/dfa.png)
 
 ### Tokenizing
