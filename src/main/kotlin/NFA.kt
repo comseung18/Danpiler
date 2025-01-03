@@ -1,6 +1,6 @@
 import java.util.*
 
-class NFA(
+open class NFA(
     val startNode: Node,
     val endNode: Node
 ): Graph() {
@@ -84,6 +84,84 @@ class NFA(
 
         dot.append("}")
         return dot.toString()
+    }
+
+    fun toDFA() : DFA {
+        val newStartNode = Node()
+        val newEndNode = Node()
+
+        val stateSetToDfaNodeNum = mutableMapOf<Set<Int>, Int>()
+        val queue = ArrayDeque<Set<Int>>()
+
+        val startClosure = this@NFA.epsilonClosure(setOf(this@NFA.startNode.i))
+        stateSetToDfaNodeNum[startClosure] = newStartNode.i
+
+        queue.add(startClosure)
+
+
+
+        return DFA(
+            newStartNode,
+            newEndNode
+        ).apply {
+
+
+            while(queue.isNotEmpty()) {
+                val currentSet = queue.removeFirst()
+                val currentDfaNodeNum = stateSetToDfaNodeNum[currentSet] ?: throw IllegalArgumentException("toDFA no dfa state")
+
+                if(this@NFA.endNode.i in currentSet) {
+                    this@apply.addEdge(Edge(
+                        Symbol.EmptySymbol,
+                        currentDfaNodeNum,
+                        newEndNode.i
+                        ))
+                }
+
+
+                val edgesFromCurrentSet = mutableListOf<Edge>().apply {
+                    currentSet.forEach { i ->
+                        addAll(this@NFA.edges[i]?.filter { edge -> edge.v !is Symbol.EmptySymbol } ?: emptyList())
+                    }
+                }
+
+                val moveSetEachSymbol = edgesFromCurrentSet.groupBy { edge -> edge.v }.map { (k, v) -> k to (v.map { it.to }).toSet() }
+
+                for((symbol, moveSet) in moveSetEachSymbol) {
+                    val u = this@NFA.epsilonClosure(moveSet)
+
+                    if(u.isEmpty()) continue
+
+                    val dfaNodeExist = stateSetToDfaNodeNum[u]
+
+                    val dfaNodeNum: Int
+                    if(dfaNodeExist == null) {
+
+                        queue.add(u)
+
+                        val dfaNum = run {
+                            // 새로운 DFA 노드 생성
+                            val newNode = Node()
+                            this@apply.addNode(newNode)
+                            newNode.i
+                        }
+
+                        stateSetToDfaNodeNum[u] = dfaNum
+                        dfaNodeNum = dfaNum
+                    } else {
+                        dfaNodeNum = dfaNodeExist
+                    }
+
+                    this@apply.addEdge(Edge(
+                        symbol,
+                        currentDfaNodeNum,
+                        dfaNodeNum
+                    ))
+                }
+            }
+
+
+        }
     }
 
     companion object {

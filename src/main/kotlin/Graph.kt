@@ -20,8 +20,8 @@ class Node {
 
 open class Graph {
     private val nodes: MutableMap<Int, Node> = mutableMapOf()
-    protected val edges: MutableMap<Int, MutableList<Edge>> = mutableMapOf()
-    private val reverseEdges: MutableMap<Int, MutableList<Edge>> = mutableMapOf()
+    protected val edges: MutableMap<Int, MutableSet<Edge>> = mutableMapOf()
+    private val reverseEdges: MutableMap<Int, MutableSet<Edge>> = mutableMapOf()
 
     fun getNodesForTest(): Map<Int, Node> = nodes
     fun getEdgesForTest(): Map<Int, List<Edge>> = edges.mapValues { it.value.toList() }
@@ -70,9 +70,9 @@ open class Graph {
     }
 
     fun addEdge(edge: Edge) {
-        edges.computeIfAbsent(edge.from) { mutableListOf() }.add(edge)
+        edges.computeIfAbsent(edge.from) { mutableSetOf() }.add(edge)
         if(edge.to != edge.from) {
-            reverseEdges.computeIfAbsent(edge.to) { mutableListOf() }.add(edge)
+            reverseEdges.computeIfAbsent(edge.to) { mutableSetOf() }.add(edge)
         }
     }
 

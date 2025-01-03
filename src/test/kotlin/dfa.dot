@@ -1,0 +1,11 @@
+digraph NFA {
+  rankdir=LR;
+  size="8,5";
+
+  start [shape=point];
+  7 [shape=doublecircle];
+  start -> 6 [ label = "ε" ];
+  6 -> 7 [ label = "ε" ];
+  6 -> 8 [ label = "a" ];
+  8 -> 7 [ label = "ε" ];
+}

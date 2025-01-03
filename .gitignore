@@ -1,0 +1,40 @@
+# IntelliJ IDEA specific
+.idea/
+*.iml
+*.iws
+out/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Java-related
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven-specific
+target/
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+
+# Gradle-specific
+.gradle/
+build/
+!gradle-wrapper.jar
+
+# Temporary files
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Others
+.vscode/
+*.py
