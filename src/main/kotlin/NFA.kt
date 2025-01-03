@@ -2,12 +2,16 @@ import java.util.*
 
 open class NFA(
     val startNode: Node,
-    val endNode: Node
+    val endNodes: MutableSet<Node>
 ): Graph() {
+
+    constructor(s: Node, e: Node) : this(s, mutableSetOf(e))
 
     init {
         addNode(startNode)
-        addNode(endNode)
+        endNodes.forEach {
+            addNode(it)
+        }
     }
 
     private fun epsilonClosure(states: Set<Int>) : Set<Int> {
@@ -47,7 +51,8 @@ open class NFA(
 
             currentStates = epsilonClosure(nextStates)
         }
-        return endNode.i in currentStates
+
+        return endNodes.any { it.i in currentStates }
     }
 
     // DOT 형식으로 그래프 출력
@@ -62,8 +67,8 @@ open class NFA(
         dot.append("  start [shape=point];\n")
 
         // 종료 노드를 이중 원으로 정의
-        endNode.let { end ->
-            dot.append("  ${end.i} [shape=doublecircle];\n")
+        endNodes.forEach {
+            dot.append("  ${it.i} [shape=doublecircle];\n")
         }
 
         // 시작점에서 실제 시작 노드로 ε 전이 추가
@@ -88,7 +93,7 @@ open class NFA(
 
     fun toDFA() : DFA {
         val newStartNode = Node()
-        val newEndNode = Node()
+        val newEndNodes = mutableSetOf<Node>()
 
         val stateSetToDfaNodeNum = mutableMapOf<Set<Int>, Int>()
         val queue = ArrayDeque<Set<Int>>()
@@ -98,11 +103,9 @@ open class NFA(
 
         queue.add(startClosure)
 
-
-
         return DFA(
             newStartNode,
-            newEndNode
+            newEndNodes
         ).apply {
 
 
@@ -110,14 +113,10 @@ open class NFA(
                 val currentSet = queue.removeFirst()
                 val currentDfaNodeNum = stateSetToDfaNodeNum[currentSet] ?: throw IllegalArgumentException("toDFA no dfa state")
 
-                if(this@NFA.endNode.i in currentSet) {
-                    this@apply.addEdge(Edge(
-                        Symbol.EmptySymbol,
-                        currentDfaNodeNum,
-                        newEndNode.i
-                        ))
+                if(this@NFA.endNodes.any {it.i in currentSet }) {
+                    val n = this@apply.nodes[currentDfaNodeNum] ?: throw IllegalArgumentException("toDFA no dfa state node for $currentDfaNodeNum")
+                    newEndNodes.add(n)
                 }
-
 
                 val edgesFromCurrentSet = mutableListOf<Edge>().apply {
                     currentSet.forEach { i ->
@@ -170,8 +169,8 @@ open class NFA(
             val endNode = Node()
 
             return NFA(
-                startNode = startNode,
-                endNode = endNode
+                startNode,
+                endNode
             ).apply {
                 addEdge(Edge(s, startNode.i , endNode.i))
             }
@@ -203,24 +202,28 @@ fun union(a:NFA, b: NFA) : NFA {
             b.startNode.i
         ))
 
-        addEdge(Edge(
-            Symbol.EmptySymbol,
-            a.endNode.i,
-            endNode.i
-        ))
+        a.endNodes.forEach {
+            addEdge(Edge(
+                Symbol.EmptySymbol,
+                it.i,
+                endNode.i
+            ))
+        }
 
-        addEdge(Edge(
-            Symbol.EmptySymbol,
-            b.endNode.i,
-            endNode.i
-        ))
+        b.endNodes.forEach {
+            addEdge(Edge(
+                Symbol.EmptySymbol,
+                it.i,
+                endNode.i
+            ))
+        }
     }
 }
 
 // operator '.'
 fun concat(a: NFA, b: NFA): NFA {
     val startNode = a.startNode
-    val endNode = b.endNode
+    val endNode = b.endNodes
 
     return NFA(
         startNode,
@@ -228,7 +231,13 @@ fun concat(a: NFA, b: NFA): NFA {
     ).apply {
         addOtherGraphNodesAndEdges(a)
         addOtherGraphNodesAndEdges(b)
-        replaceNode(a.endNode, b.startNode)
+        a.endNodes.forEach {
+            this@apply.addEdge(Edge(
+                Symbol.EmptySymbol,
+                it.i,
+                b.startNode.i
+            ))
+        }
     }
 }
 
@@ -261,17 +270,19 @@ fun kleene(a: NFA): NFA {
             a.startNode.i
         ))
 
-        addEdge(Edge(
-            Symbol.EmptySymbol,
-            a.endNode.i,
-            endNode.i
-        ))
+        a.endNodes.forEach {
+            addEdge(Edge(
+                Symbol.EmptySymbol,
+                it.i,
+                endNode.i
+            ))
 
-        addEdge(Edge(
-            Symbol.EmptySymbol,
-            a.endNode.i,
-            a.startNode.i
-        ))
+            addEdge(Edge(
+                Symbol.EmptySymbol,
+                it.i,
+                a.startNode.i
+            ))
+        }
 
         addEdge(Edge(
             Symbol.EmptySymbol,

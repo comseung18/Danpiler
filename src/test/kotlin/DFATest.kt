@@ -55,8 +55,6 @@ class DFATest {
         val nfa = toNFA(regex)
         val dfa = nfa.toDFA()
 
-        println(dfa.toDot())
-
         assertTrue(dfa.match(""), "Pattern 'a*' should match empty string")
         assertTrue(dfa.match("a"), "Pattern 'a*' should match 'a'")
         assertTrue(dfa.match("aaa"), "Pattern 'a*' should match 'aaa'")
@@ -80,7 +78,6 @@ class DFATest {
         val regex = "a?"
         val nfa = toNFA(regex)
         val dfa = nfa.toDFA()
-        println(dfa.toDot())
 
         assertTrue(dfa.match(""), "Pattern 'a?' should match empty string")
         assertTrue(dfa.match("a"), "Pattern 'a?' should match 'a'")

@@ -1,6 +1,4 @@
 class DFA(
     startNode: Node,
-    endNode: Node
-) : NFA(startNode, endNode) {
-
-}
+    endNodes: MutableSet<Node>
+) : NFA(startNode, endNodes)

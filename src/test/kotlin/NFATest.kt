@@ -191,7 +191,7 @@ class NFATest {
     fun testComplexExpression() {
         val regex = "a|b*c|d(e|f)*g"
         val nfa = toNFA(regex)
-
+        println(nfa.toDot())
         assertTrue(nfa.match("a"), "Pattern 'a|b*c|d(e|f)*g' should match 'a'")
         assertTrue(nfa.match("bc"), "Pattern 'a|b*c|d(e|f)*g' should match 'bc'")
         assertTrue(nfa.match("bbbc"), "Pattern 'a|b*c|d(e|f)*g' should match 'bbbc'")
