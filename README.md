@@ -90,29 +90,28 @@ digraph DFA {
 
   start [shape=point];
   25 [shape=doublecircle];
+  26 [shape=doublecircle];
+  29 [shape=doublecircle];
   start -> 24 [ label = "ε" ];
-  24 -> 26 [ label = "a" ];
-  24 -> 27 [ label = "c" ];
-  24 -> 28 [ label = "b" ];
-  24 -> 29 [ label = "d" ];
-  26 -> 25 [ label = "ε" ];
-  27 -> 25 [ label = "ε" ];
-  28 -> 27 [ label = "c" ];
-  28 -> 28 [ label = "b" ];
-  29 -> 30 [ label = "g" ];
-  29 -> 31 [ label = "e" ];
-  29 -> 32 [ label = "f" ];
-  30 -> 25 [ label = "ε" ];
-  31 -> 30 [ label = "g" ];
-  31 -> 31 [ label = "e" ];
-  31 -> 32 [ label = "f" ];
-  32 -> 30 [ label = "g" ];
-  32 -> 31 [ label = "e" ];
-  32 -> 32 [ label = "f" ];
+  24 -> 25 [ label = "a" ];
+  24 -> 26 [ label = "c" ];
+  24 -> 27 [ label = "b" ];
+  24 -> 28 [ label = "d" ];
+  27 -> 27 [ label = "b" ];
+  27 -> 26 [ label = "c" ];
+  28 -> 29 [ label = "g" ];
+  28 -> 30 [ label = "e" ];
+  28 -> 31 [ label = "f" ];
+  30 -> 30 [ label = "e" ];
+  30 -> 31 [ label = "f" ];
+  30 -> 29 [ label = "g" ];
+  31 -> 30 [ label = "e" ];
+  31 -> 31 [ label = "f" ];
+  31 -> 29 [ label = "g" ];
 }
 ```
 
-위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA 와 비교할 때 Node 숫자 24 -> 9 개로 감소 )
+위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA 와 비교할 때 Node 숫자 24 -> 8 개로 66% 감소 )
 ![image](src/test/kotlin/dfa.png)
 
 ### Tokenizing
