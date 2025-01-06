@@ -147,8 +147,10 @@ digraph DFA {
 }
 ```
 
-위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA->DFA 와 비교할 때 Node 숫자 8 -> 5 개로 37% 감소 )
+위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA->DFA 와 비교할 때 Node 숫자 8 -> 4 개로 50% 감소 )
 ![image](src/test/kotlin/dfa_direct.png)
+
+4번노드는 Direct DFA 구성하는 계산 과정에서 생긴 더미 노드로 없다고 간주.
 
 ### Tokenizing
 
