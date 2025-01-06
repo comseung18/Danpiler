@@ -299,36 +299,36 @@ fun toNFA(regex: String) : NFA {
     val nfaStack = Stack<NFA>()
     for(c in postFix) {
         when(c) {
-            '*' -> {
+            Operator.Kleene.op -> {
                 if(nfaStack.isEmpty()) {
-                    throw IllegalArgumentException("'*' 연산자 앞에 NFA가 없습니다.")
+                    throw IllegalArgumentException("'${Operator.Kleene.op}' 연산자 앞에 NFA가 없습니다.")
                 }
 
                 val subNfa = nfaStack.pop()
                 nfaStack.push(kleene(subNfa))
             }
 
-            '+' -> {
+            Operator.Plus.op -> {
                 if(nfaStack.isEmpty()) {
-                    throw IllegalArgumentException("'+' 연산자 앞에 NFA가 없습니다.")
+                    throw IllegalArgumentException("'${Operator.Plus.op}' 연산자 앞에 NFA가 없습니다.")
                 }
 
                 val subNfa = nfaStack.pop()
                 nfaStack.push(plus(subNfa))
             }
 
-            '?' -> {
+            Operator.Optional.op -> {
                 if(nfaStack.isEmpty()) {
-                    throw IllegalArgumentException("'?' 연산자 앞에 NFA가 없습니다.")
+                    throw IllegalArgumentException("'${Operator.Optional.op}' 연산자 앞에 NFA가 없습니다.")
                 }
 
                 val subNfa = nfaStack.pop()
                 nfaStack.push(optional(subNfa))
             }
 
-            '.' -> {
+            Operator.Concat.op -> {
                 if (nfaStack.size < 2) {
-                    throw IllegalArgumentException("'.' 연산자 앞에 두 개의 NFA가 필요합니다.")
+                    throw IllegalArgumentException("'${Operator.Concat.op}' 연산자 앞에 두 개의 NFA가 필요합니다.")
                 }
                 val a = nfaStack.pop()
                 val b = nfaStack.pop()
@@ -336,9 +336,9 @@ fun toNFA(regex: String) : NFA {
                 nfaStack.push(concatenated)
             }
 
-            '|' -> {
+            Operator.Union.op -> {
                 if (nfaStack.size < 2) {
-                    throw IllegalArgumentException("'|' 연산자 앞에 두 개의 NFA가 필요합니다.")
+                    throw IllegalArgumentException("'${Operator.Union.op}' 연산자 앞에 두 개의 NFA가 필요합니다.")
                 }
                 val a = nfaStack.pop()
                 val b = nfaStack.pop()

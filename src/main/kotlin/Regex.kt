@@ -1,21 +1,44 @@
 import java.util.Stack
 
+enum class Operator(val op: Char, val priority: Int) {
+
+    Union('|', 1),
+    Kleene('*', 3),
+    Optional('?', 3),
+    Plus('+', 3),
+    Concat('.', 2);
+
+    fun isClosure() : Boolean {
+        return this == Kleene || this == Optional || this == Plus
+    }
+
+    companion object {
+        fun fromOpCode(c: Char) : Operator? {
+            return Operator.values().firstOrNull { it.op == c }
+        }
+    }
+
+}
+
 fun insertExplicitConcatOp(regex: String): String {
+
+    val forbiddenChars = listOf(Operator.Concat.op)
+
     val result = StringBuilder()
 
     fun isLiteral(c: Char): Boolean {
-        val operators = setOf('|', '*', '(', ')', '?', '+')
+        val operators = Operator.values().filterNot { it == Operator.Concat }.map { it.op }.plus(setOf('(', ')'))
         return !operators.contains(c)
     }
 
     fun isClosureOperator(c: Char): Boolean {
-        return c == '*' || c == '?' || c == '+'
+        return Operator.fromOpCode(c)?.isClosure() ?: false
     }
 
     for (i in regex.indices) {
         val c1 = regex[i]
-        if(c1 == '.') {
-            throw IllegalArgumentException("regex 에 '.' 이 포함되어 있습니다.")
+        if(c1 in forbiddenChars) {
+            throw IllegalArgumentException("forbiddenChars in regex : $c1 in $i")
         }
 
         result.append(c1)
@@ -27,7 +50,7 @@ fun insertExplicitConcatOp(regex: String): String {
                 (isLiteral(c1) || c1 == ')' || isClosureOperator(c1)) &&
                 (isLiteral(c2) || c2 == '(')
             ) {
-                result.append('.')
+                result.append(Operator.Concat.op)
             }
         }
     }
@@ -39,13 +62,8 @@ fun insertExplicitConcatOp(regex: String): String {
 fun toPostfix(regex: String): String {
     val output = StringBuilder()
     val stack = Stack<Char>()
-    val operators = mapOf(
-        '|' to 1,
-        '.' to 2,
-        '*' to 3,
-        '?' to 3,
-        '+' to 3
-    )
+
+    val operators = Operator.values().associate { it.op to it.priority }
 
     for (c in regex) {
         when (c) {
@@ -63,7 +81,7 @@ fun toPostfix(regex: String): String {
                 }
             }
 
-            in operators -> {
+            in operators.keys -> {
                 while (stack.isNotEmpty() &&
                     stack.peek() != '(' &&
                         operators.getOrDefault(stack.peek(), 0) >=
