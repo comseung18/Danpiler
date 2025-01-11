@@ -202,8 +202,6 @@ class DFADirectTest {
         val regex = "a|b*c|d(e|f)*g"
         val dfa = DFA.toDirectDFA(regex)
 
-        println(dfa.toDot())
-
         assertTrue(dfa.match("a"), "Pattern 'a|b*c|d(e|f)*g' should match 'a'")
         assertTrue(dfa.match("bc"), "Pattern 'a|b*c|d(e|f)*g' should match 'bc'")
         assertTrue(dfa.match("bbbc"), "Pattern 'a|b*c|d(e|f)*g' should match 'bbbc'")

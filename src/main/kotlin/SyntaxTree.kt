@@ -138,7 +138,6 @@ data class OperatorNode(
 private fun buildSyntaxTree(postFixRegex: String): SyntaxTree {
     val stack = Stack<SyntaxTree>()
     var position = 1
-
     for (c in postFixRegex) {
         when (c) {
             in Operator.values().map{ it.op } -> {

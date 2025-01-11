@@ -4,6 +4,114 @@ class DFA(
 ) : NFA(startNode, endNodes) {
 
     companion object {
+        fun stateMinimizedDFA(dfa: DFA) : DFA {
+            // collect input symbols
+            val symbols = dfa.edges.flatMap { it.value }.mapNotNull { (it.v as? Symbol.CharSymbol) }.distinct()
+            // collect node to node each symbol
+            val nodeToNodeMapEachSymbol: MutableMap<Pair<Int, Symbol.CharSymbol>, Int> = mutableMapOf()
+            dfa.edges.forEach { (i, edges) ->
+                for(edge in edges) {
+                    if(edge.v !is Symbol.CharSymbol) continue
+                    nodeToNodeMapEachSymbol[i to edge.v] = edge.to
+                }
+            }
+
+            // initial partition = S, E
+            val s0 = (dfa.nodes.values.toSet() - dfa.endNodes).map { it.i }.toSet()
+            val e = dfa.endNodes.map{ it.i }.toSet()
+            var nextPartitionId = 0
+            val nodeToPartitionNum: MutableMap<Int, Int> = mutableMapOf()
+
+            fun addNewPartition(s: Iterable<Int>) {
+                for(n in s) {
+                    nodeToPartitionNum[n] = nextPartitionId
+                }
+                ++nextPartitionId
+            }
+
+            val partitions: MutableSet<Set<Int>> = mutableSetOf<Set<Int>>().apply {
+                if(s0.isNotEmpty()) {
+                    addNewPartition(s0)
+                    add(s0)
+                }
+                if(e.isNotEmpty()) {
+                    addNewPartition(e)
+                    add(e)
+                }
+            }
+
+            var hasNewPartition = true
+            val checkedPartitionMap: MutableSet<Int> = mutableSetOf()
+            while(hasNewPartition) {
+                hasNewPartition = false
+                val newPartition : MutableSet<Set<Int>> = mutableSetOf()
+                for(partition in partitions) {
+                    val partitionNum = nodeToPartitionNum[partition.first()]
+
+                    if(partition.size == 1 || checkedPartitionMap.contains(partitionNum)) {
+                        newPartition.add(partition)
+                        continue
+                    }
+
+                    checkedPartitionMap.add(partitionNum!!)
+                    var foundPartitionHere = false
+                    for(c in symbols) {
+                        val targetPartitionNum: MutableMap<Int, Int> = mutableMapOf()
+
+                        for(n in partition) {
+                            targetPartitionNum[n] = nodeToPartitionNum[nodeToNodeMapEachSymbol[n to c]] ?: -1
+                        }
+                        val partitioned = targetPartitionNum
+                            .keys.groupBy { k -> targetPartitionNum[k]!! }
+                        if(partitioned.size != 1) {
+                            hasNewPartition = true
+                            foundPartitionHere = true
+                            partitioned.values.forEach {
+                                val newPartSet = it.toSet()
+                                addNewPartition(newPartSet)
+                                newPartition.add(newPartSet)
+                            }
+                            break
+                        }
+                    }
+
+                    if(!foundPartitionHere) {
+                        newPartition.add(partition)
+                    }
+
+                }
+                partitions.clear()
+                partitions.addAll(newPartition)
+
+            }
+            // make state-minimized DFA
+            val partitionNumToNewDFANode: MutableMap<Int, Node> = mutableMapOf()
+            partitions.forEach {
+                partitionNumToNewDFANode.computeIfAbsent(nodeToPartitionNum[it.first()]!!) { Node() }
+            }
+
+            return DFA(partitionNumToNewDFANode[nodeToPartitionNum[dfa.startNode.i]]!!,
+                dfa.endNodes.mapNotNull{ partitionNumToNewDFANode[nodeToPartitionNum[it.i]] }.toMutableSet()
+            ).apply {
+
+                partitionNumToNewDFANode.values.forEach {
+                    this@apply.addNode(it)
+                }
+
+                dfa.edges.forEach { (from, edges) ->
+                    edges.forEach {edge ->
+                        val p1 = partitionNumToNewDFANode[nodeToPartitionNum[from]]!!.i
+                        val p2 = partitionNumToNewDFANode[nodeToPartitionNum[edge.to]]!!.i
+                        this@apply.addEdge(Edge(
+                            edge.v,
+                            p1,
+                            p2
+                        ))
+                    }
+                }
+            }
+        }
+
         fun toDirectDFA(regex: String) : DFA {
             val additionalRegex = "($regex)#"
 

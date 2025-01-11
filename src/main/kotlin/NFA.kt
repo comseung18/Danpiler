@@ -293,6 +293,18 @@ fun kleene(a: NFA): NFA {
 }
 
 fun toNFA(regex: String) : NFA {
+    if(regex.isEmpty()) {
+        val st = Node()
+        val ed = Node()
+        return NFA(st, ed).apply {
+            this@apply.addEdge(Edge(
+                Symbol.EmptySymbol,
+                st.i,
+                ed.i
+            ))
+        }
+    }
+
     val explicitConcat = insertExplicitConcatOp(regex)
     val postFix = toPostfix(explicitConcat)
 

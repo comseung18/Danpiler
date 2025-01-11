@@ -35,16 +35,18 @@ fun insertExplicitConcatOp(regex: String): String {
         return Operator.fromOpCode(c)?.isClosure() ?: false
     }
 
-    for (i in regex.indices) {
-        val c1 = regex[i]
+    val emptyParenthesesRemoved = removeEmptyParentheses(regex)
+
+    for (i in emptyParenthesesRemoved.indices) {
+        val c1 = emptyParenthesesRemoved[i]
         if(c1 in forbiddenChars) {
             throw IllegalArgumentException("forbiddenChars in regex : $c1 in $i")
         }
 
         result.append(c1)
 
-        if (i + 1 < regex.length) {
-            val c2 = regex[i + 1]
+        if (i + 1 < emptyParenthesesRemoved.length) {
+            val c2 = emptyParenthesesRemoved[i + 1]
 
             if (
                 (isLiteral(c1) || c1 == ')' || isClosureOperator(c1)) &&
@@ -58,13 +60,11 @@ fun insertExplicitConcatOp(regex: String): String {
     return result.toString()
 }
 
-
 fun toPostfix(regex: String): String {
     val output = StringBuilder()
     val stack = Stack<Char>()
 
     val operators = Operator.values().associate { it.op to it.priority }
-
     for (c in regex) {
         when (c) {
 
@@ -105,4 +105,23 @@ fun toPostfix(regex: String): String {
     }
 
     return output.toString()
+}
+
+private fun removeEmptyParentheses(s: String): String {
+    val stack = mutableListOf<Char>()
+
+    for (char in s) {
+        when (char) {
+            ')' -> {
+                if (stack.isNotEmpty() && stack.last() == '(') {
+                    stack.removeLast()
+                } else {
+                    stack.add(char)
+                }
+            }
+            else -> stack.add(char)
+        }
+    }
+
+    return stack.reversed().joinToString(separator = "").reversed()
 }
