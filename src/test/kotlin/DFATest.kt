@@ -112,4 +112,60 @@ class DFATest {
         assertFalse(dfa.match(""), "Pattern '[0-9]+' should not match empty string")
     }
 
+    @Test
+    fun testEscapedSpecialCharacters() {
+        val regex = "\\*\\+\\?"
+        val dfa = DFA.toDirectDFA(regex)
+
+        assertTrue(dfa.match("*+?"), "Pattern '\\*\\+\\?' should match '*+?'")
+        assertFalse(dfa.match("*+"), "Pattern '\\*\\+\\?' should not match '*+'")
+        assertFalse(dfa.match("+?"), "Pattern '\\*\\+\\?' should not match '+?'")
+        assertFalse(dfa.match(""), "Pattern '\\*\\+\\?' should not match empty string")
+        assertFalse(dfa.match("*+?extra"), "Pattern '\\*\\+\\?' should not match '*+?extra'")
+    }
+
+    @Test
+    fun testEscapedParentheses() {
+        val regex = "\\(a\\|b\\)"
+        val dfa = DFA.toDirectDFA(regex)
+
+        assertTrue(dfa.match("(a|b)"), "Pattern '\\(a\\|b\\)' should match '(a|b)'")
+        assertFalse(dfa.match("a|b"), "Pattern '\\(a\\|b\\)' should not match 'a|b'")
+        assertFalse(dfa.match("(a|b"), "Pattern '\\(a\\|b\\)' should not match '(a|b'")
+        assertFalse(dfa.match(""), "Pattern '\\(a\\|b\\)' should not match empty string")
+    }
+
+    @Test
+    fun testEscapedBackslash() {
+        val regex = "a\\\\b"
+        val dfa = DFA.toDirectDFA(regex)
+
+        assertTrue(dfa.match("a\\b"), "Pattern 'a\\\\b' should match 'a\\b'")
+        assertFalse(dfa.match("ab"), "Pattern 'a\\\\b' should not match 'ab'")
+        assertFalse(dfa.match("a\\bb"), "Pattern 'a\\\\b' should not match 'a\\bb'")
+        assertFalse(dfa.match("a\\b\\b"), "Pattern 'a\\\\b' should not match 'a\\b\\b'")
+    }
+
+    @Test
+    fun testComplexEscapedPattern() {
+        val regex = "\\[a\\-z\\]\\*"
+        val dfa = DFA.toDirectDFA(regex)
+
+        assertTrue(dfa.match("[a-z]*"), "Pattern '\\[a\\-z\\]\\*' should match '[a-z]*'")
+        assertFalse(dfa.match("[a-z]"), "Pattern '\\[a\\-z\\]\\*' should not match '[a-z]'")
+        assertFalse(dfa.match("a-z*"), "Pattern '\\[a\\-z\\]\\*' should not match 'a-z*'")
+        assertFalse(dfa.match("[a-z]*extra"), "Pattern '\\[a\\-z\\]\\*' should not match '[a-z]*extra'")
+    }
+
+    @Test
+    fun testEscapedCharactersWithConcatenation() {
+        val regex = "\\(a\\)b\\*"
+        val dfa = DFA.toDirectDFA(regex)
+
+        assertTrue(dfa.match("(a)b*"), "Pattern '\\(a\\)b\\*' should match '(a)b*'")
+        assertFalse(dfa.match("(a)b"), "Pattern '\\(a\\)b\\*' should not match '(a)b'")
+        assertFalse(dfa.match("(a)b**"), "Pattern '\\(a\\)b\\*' should not match '(a)b**'")
+        assertFalse(dfa.match("(a)"), "Pattern '\\(a\\)b\\*' should not match '(a)'")
+        assertFalse(dfa.match("(a)b*extra"), "Pattern '\\(a\\)b\\*' should not match '(a)b*extra'")
+    }
 }

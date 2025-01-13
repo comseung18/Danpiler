@@ -309,8 +309,10 @@ fun toNFA(regex: String) : NFA {
     val postFix = toPostfix(explicitConcat)
 
     val nfaStack = Stack<NFA>()
-    for(c in postFix) {
-        when(c) {
+
+    var i = 0
+    while(i < postFix.length) {
+        when(val c = postFix[i++]) {
             Operator.Kleene.op -> {
                 if(nfaStack.isEmpty()) {
                     throw IllegalArgumentException("'${Operator.Kleene.op}' 연산자 앞에 NFA가 없습니다.")
@@ -365,13 +367,18 @@ fun toNFA(regex: String) : NFA {
             }
 
             else -> {
-                val symbol = Symbol.CharSymbol(c)
+                val symbol: Symbol = if(c == '\\') {
+                    Symbol.CharSymbol(postFix[i++])
+                } else {
+                    Symbol.CharSymbol(c)
+                }
+
                 val symbolNFA = NFA.fromSymbol(symbol)
                 nfaStack.push(symbolNFA)
             }
         }
-    }
 
+    }
     if (nfaStack.size != 1) {
         throw IllegalArgumentException("잘못된 정규 표현식입니다.")
     }

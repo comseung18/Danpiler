@@ -264,4 +264,85 @@ class MinStatesDFATest {
             DFA.toDirectDFA(regex)
         }
     }
+
+
+    @Test
+    fun testEscapedSpecialCharacters() {
+        val regex = "\\*\\+\\?"
+        val (originalDFA, minimizedDFA) = createAndMinimizeDFA(regex)
+
+        val testStrings = listOf("*+?", "*+", "+?", "", "*+?extra")
+        val expectedMatches = listOf(true, false, false, false, false)
+
+        for ((input, expected) in testStrings.zip(expectedMatches)) {
+            assertEquals(expected, originalDFA.match(input), "Original DFA should match input '$input' as $expected")
+            assertEquals(expected, minimizedDFA.match(input), "Minimized DFA should match input '$input' as $expected")
+        }
+
+        assertTrue(minimizedDFA.getNodesForTest().size <= originalDFA.getNodesForTest().size, "Minimized DFA should have fewer or equal states")
+    }
+
+    @Test
+    fun testEscapedParentheses() {
+        val regex = "\\(a\\|b\\)"
+        val (originalDFA, minimizedDFA) = createAndMinimizeDFA(regex)
+
+        val testStrings = listOf("(a|b)", "a|b", "(a|b", "", "(a|b)extra")
+        val expectedMatches = listOf(true, false, false, false, false)
+
+        for ((input, expected) in testStrings.zip(expectedMatches)) {
+            assertEquals(expected, originalDFA.match(input), "Original DFA should match input '$input' as $expected")
+            assertEquals(expected, minimizedDFA.match(input), "Minimized DFA should match input '$input' as $expected")
+        }
+
+        assertTrue(minimizedDFA.getNodesForTest().size <= originalDFA.getNodesForTest().size, "Minimized DFA should have fewer or equal states")
+    }
+
+    @Test
+    fun testEscapedBackslash() {
+        val regex = "a\\\\b"
+        val (originalDFA, minimizedDFA) = createAndMinimizeDFA(regex)
+
+        val testStrings = listOf("a\\b", "ab", "a\\bb", "a\\b\\b")
+        val expectedMatches = listOf(true, false, false, false)
+
+        for ((input, expected) in testStrings.zip(expectedMatches)) {
+            assertEquals(expected, originalDFA.match(input), "Original DFA should match input '$input' as $expected")
+            assertEquals(expected, minimizedDFA.match(input), "Minimized DFA should match input '$input' as $expected")
+        }
+
+        assertTrue(minimizedDFA.getNodesForTest().size <= originalDFA.getNodesForTest().size, "Minimized DFA should have fewer or equal states")
+    }
+
+    @Test
+    fun testComplexEscapedPattern() {
+        val regex = "\\[a\\-z\\]\\*"
+        val (originalDFA, minimizedDFA) = createAndMinimizeDFA(regex)
+
+        val testStrings = listOf("[a-z]*", "[a-z]", "a-z*", "[a-z]*extra")
+        val expectedMatches = listOf(true, false, false, false)
+
+        for ((input, expected) in testStrings.zip(expectedMatches)) {
+            assertEquals(expected, originalDFA.match(input), "Original DFA should match input '$input' as $expected")
+            assertEquals(expected, minimizedDFA.match(input), "Minimized DFA should match input '$input' as $expected")
+        }
+
+        assertTrue(minimizedDFA.getNodesForTest().size <= originalDFA.getNodesForTest().size, "Minimized DFA should have fewer or equal states")
+    }
+
+    @Test
+    fun testEscapedCharactersWithConcatenation() {
+        val regex = "\\(a\\)b\\*"
+        val (originalDFA, minimizedDFA) = createAndMinimizeDFA(regex)
+
+        val testStrings = listOf("(a)b*", "(a)b", "(a)b**", "(a)", "(a)b*extra")
+        val expectedMatches = listOf(true, false, false, false, false)
+
+        for ((input, expected) in testStrings.zip(expectedMatches)) {
+            assertEquals(expected, originalDFA.match(input), "Original DFA should match input '$input' as $expected")
+            assertEquals(expected, minimizedDFA.match(input), "Minimized DFA should match input '$input' as $expected")
+        }
+
+        assertTrue(minimizedDFA.getNodesForTest().size <= originalDFA.getNodesForTest().size, "Minimized DFA should have fewer or equal states")
+    }
 }

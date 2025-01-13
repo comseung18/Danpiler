@@ -369,4 +369,41 @@ class NFATest {
         assertFalse(nfa.match("aabx"), "Pattern 'a+b*' should not match 'aabx'")
     }
 
+
+    @Test
+    fun testEscapedPlusAndKleeneStarCombination() {
+        val regex = "a\\+b\\*"
+        val nfa = toNFA(regex)
+
+        assertFalse(nfa.match(""), "Pattern 'a\\+b\\*' should not match empty string")
+        assertTrue(nfa.match("a+b*"), "Pattern 'a\\+b\\*' should match 'a+b*'")
+        assertFalse(nfa.match("ab"), "Pattern 'a\\+b\\*' should not match 'ab'")
+        assertFalse(nfa.match("a"), "Pattern 'a\\+b\\*' should not match 'a'")
+        assertFalse(nfa.match("b"), "Pattern 'a\\+b\\*' should not match 'b'")
+        assertFalse(nfa.match("a+b"), "Pattern 'a\\+b\\*' should not match 'a+b'")
+        assertFalse(nfa.match("a+bb"), "Pattern 'a\\+b\\*' should not match 'a+bb'")
+    }
+
+    @Test
+    fun testEscapedCharacters() {
+        val regex = "\\(a\\*\\)b"
+        val nfa = toNFA(regex)
+
+        assertTrue(nfa.match("(a*)b"), "Pattern '\\(a\\*\\)b' should match '(a*)b'")
+        assertFalse(nfa.match("a*b"), "Pattern '\\(a\\*\\)b' should not match 'a*b'")
+        assertFalse(nfa.match("(a*)"), "Pattern '\\(a\\*\\)b' should not match '(a*)'")
+        assertFalse(nfa.match("(a*)bb"), "Pattern '\\(a\\*\\)b' should not match '(a*)bb'")
+        assertFalse(nfa.match("(a)b"), "Pattern '\\(a\\*\\)b' should not match '(a)b'")
+    }
+
+    @Test
+    fun testEscapedBackslash() {
+        val regex = "a\\\\b"
+        val nfa = toNFA(regex)
+
+        assertTrue(nfa.match("a\\b"), "Pattern 'a\\\\b' should match 'a\\b'")
+        assertFalse(nfa.match("ab"), "Pattern 'a\\\\b' should not match 'ab'")
+        assertFalse(nfa.match("a\\bb"), "Pattern 'a\\\\b' should not match 'a\\bb'")
+        assertFalse(nfa.match("a\\b\\b"), "Pattern 'a\\\\b' should not match 'a\\b\\b'")
+    }
 }

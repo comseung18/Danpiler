@@ -138,10 +138,11 @@ data class OperatorNode(
 private fun buildSyntaxTree(postFixRegex: String): SyntaxTree {
     val stack = Stack<SyntaxTree>()
     var position = 1
-    for (c in postFixRegex) {
-        when (c) {
+    var i = 0
+    while(i< postFixRegex.length) {
+        when (val c = postFixRegex[i++]) {
             in Operator.values().map{ it.op } -> {
-                when (val op = Operator.fromOpCode(c)) {
+                when (val op = Operator.fromOpCode(c.toString())) {
                     Operator.Union, Operator.Concat -> {
                         val right = stack.pop()
                         val left = stack.pop()
@@ -157,11 +158,18 @@ private fun buildSyntaxTree(postFixRegex: String): SyntaxTree {
                 }
             }
             else -> {
-                val symNode = SymbolNode(Symbol.CharSymbol(c)).apply { this.position = position++ }
+
+                val symNode = if(c != '\\'){
+                    SymbolNode(Symbol.CharSymbol(c)).apply { this.position = position++ }
+                } else {
+                    SymbolNode(Symbol.CharSymbol(postFixRegex[i++])).apply { this.position = position++ }
+                }
+
                 stack.push(symNode)
             }
         }
     }
+
 
     if (stack.size != 1) {
         throw IllegalArgumentException("Invalid regular expression")

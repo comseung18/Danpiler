@@ -123,4 +123,36 @@ class InsertConcatOpTest {
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle mix of non-empty and empty groups")
     }
+
+    @Test
+    fun testEscapedCharacters() {
+        val regex = "a\\*b"
+        val expected = "a.\\*.b"
+        val actual = insertExplicitConcatOp(regex)
+        assertEquals(expected, actual, "Should not insert '.' inside escaped characters and correctly handle them")
+    }
+
+    @Test
+    fun testEscapedParentheses() {
+        val regex = "a\\(b\\)c"
+        val expected = "a.\\(.b.\\).c"
+        val actual = insertExplicitConcatOp(regex)
+        assertEquals(expected, actual, "Should correctly handle escaped parentheses and insert '.' appropriately")
+    }
+
+    @Test
+    fun testComplexEscapedCharacters() {
+        val regex = "\\(a\\*\\+\\).b"
+        val expected = "\\(.a.\\*.\\+\\).b"
+        val actual = insertExplicitConcatOp(regex)
+        assertEquals(expected, actual, "Should correctly handle complex escaped characters")
+    }
+
+    @Test
+    fun testEscapedBackslash() {
+        val regex = "a\\\\b"
+        val expected = "a.\\\\.b"
+        val actual = insertExplicitConcatOp(regex)
+        assertEquals(expected, actual, "Should correctly handle escaped backslashes")
+    }
 }

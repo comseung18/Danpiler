@@ -13,8 +13,8 @@ enum class Operator(val op: Char, val priority: Int) {
     }
 
     companion object {
-        fun fromOpCode(c: Char) : Operator? {
-            return Operator.values().firstOrNull { it.op == c }
+        fun fromOpCode(c: String) : Operator? {
+            return Operator.values().firstOrNull { it.op.toString() == c }
         }
     }
 
@@ -22,39 +22,56 @@ enum class Operator(val op: Char, val priority: Int) {
 
 fun insertExplicitConcatOp(regex: String): String {
 
-    val forbiddenChars = listOf(Operator.Concat.op)
+    val forbiddenChars = listOf(Operator.Concat.op.toString())
 
     val result = StringBuilder()
 
-    fun isLiteral(c: Char): Boolean {
-        val operators = Operator.values().filterNot { it == Operator.Concat }.map { it.op }.plus(setOf('(', ')'))
+    fun isLiteral(c: String): Boolean {
+        val operators = Operator.values().filterNot { it == Operator.Concat }.map { it.op.toString() }
+            .plus(setOf("(", ")"))
         return !operators.contains(c)
     }
 
-    fun isClosureOperator(c: Char): Boolean {
+    fun isClosureOperator(c: String): Boolean {
         return Operator.fromOpCode(c)?.isClosure() ?: false
     }
 
     val emptyParenthesesRemoved = removeEmptyParentheses(regex)
 
-    for (i in emptyParenthesesRemoved.indices) {
-        val c1 = emptyParenthesesRemoved[i]
+    var i = 0
+    while(i < emptyParenthesesRemoved.length) {
+
+        val c1: String
+
+        if(emptyParenthesesRemoved[i] == '\\' && i + 1 < emptyParenthesesRemoved.length) {
+            c1 = emptyParenthesesRemoved.substring(i..i+1)
+            i += 2
+        } else {
+            c1 = emptyParenthesesRemoved[i].toString()
+            ++i
+        }
+
         if(c1 in forbiddenChars) {
-            throw IllegalArgumentException("forbiddenChars in regex : $c1 in $i")
+            throw IllegalArgumentException("forbiddenChars in regex : $c1 $regex")
         }
 
         result.append(c1)
 
-        if (i + 1 < emptyParenthesesRemoved.length) {
-            val c2 = emptyParenthesesRemoved[i + 1]
+        if(i < emptyParenthesesRemoved.length) {
+            val c2 : String = if(emptyParenthesesRemoved[i] == '\\' && i + 1 < emptyParenthesesRemoved.length) {
+                emptyParenthesesRemoved.substring(i..i+1)
+            } else {
+                emptyParenthesesRemoved[i].toString()
+            }
 
             if (
-                (isLiteral(c1) || c1 == ')' || isClosureOperator(c1)) &&
-                (isLiteral(c2) || c2 == '(')
+                (isLiteral(c1) || c1 == ")" || isClosureOperator(c1)) &&
+                (isLiteral(c2) || c2 == "(")
             ) {
                 result.append(Operator.Concat.op)
             }
         }
+
     }
 
     return result.toString()
@@ -65,9 +82,10 @@ fun toPostfix(regex: String): String {
     val stack = Stack<Char>()
 
     val operators = Operator.values().associate { it.op to it.priority }
-    for (c in regex) {
-        when (c) {
 
+    var i = 0
+    while(i < regex.length) {
+        when (val c = regex[i++]) {
             '(' -> stack.push(c)
 
             ')' -> {
@@ -92,7 +110,13 @@ fun toPostfix(regex: String): String {
                 stack.push(c)
             }
 
-            else -> output.append(c)
+            else -> {
+                if(c == '\\') {
+                    output.append(c).append(regex[i++])
+                } else {
+                    output.append(c)
+                }
+            }
         }
     }
 
