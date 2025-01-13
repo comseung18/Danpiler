@@ -114,6 +114,44 @@ digraph DFA {
 위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA 와 비교할 때 Node 숫자 24 -> 8 개로 66% 감소 )
 ![image](src/test/kotlin/dfa.png)
 
+
+### Direct DFA
+**정규식**을 입력받아 NFA 를 거치지 않고 곧바로 DFA (Deterministic Finite Automaton)**를 생성합니다.
+
+#### 동작 예시
+##### 1. 정규식 -> DFA 변환
+
+DFA.toDirectDFA 함수를 이용해 정규식을 곧바로 DFA 로 변환합니다.
+NFA -> DFA 로 변환하는 방식보다 더 적은 상태를 가집니다.
+
+입력 정규식:"a|b*c|d(e|f)*g" ( NFA 예시와 동일 )
+
+```dot
+digraph DFA {
+  rankdir=LR;
+  size="8,5";
+
+  start [shape=point];
+  1 [shape=doublecircle];
+  start -> 0 [ label = "ε" ];
+  0 -> 1 [ label = "a" ];
+  0 -> 2 [ label = "b" ];
+  0 -> 1 [ label = "c" ];
+  0 -> 3 [ label = "d" ];
+  1 -> 4 [ label = "#" ];
+  2 -> 2 [ label = "b" ];
+  2 -> 1 [ label = "c" ];
+  3 -> 3 [ label = "e" ];
+  3 -> 3 [ label = "f" ];
+  3 -> 1 [ label = "g" ];
+}
+```
+
+위의 Dot 파일을 Graphviz로 시각화한 결과는 다음과 같습니다: ( NFA->DFA 와 비교할 때 Node 숫자 8 -> 4 개로 50% 감소 )
+![image](src/test/kotlin/dfa_direct.png)
+
+4번노드는 Direct DFA 구성하는 계산 과정에서 생긴 더미 노드로 없다고 간주.
+
 ### Tokenizing
 
 
