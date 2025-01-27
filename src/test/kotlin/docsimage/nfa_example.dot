@@ -1,0 +1,24 @@
+digraph NFA {
+  rankdir=LR;
+  size="15,10";
+  dpi=300;
+  start [shape=point];
+  13 [shape=doublecircle];
+  start -> 6 [ label = "ε" ];
+  2 -> 3 [ label = "b" ];
+  0 -> 1 [ label = "a" ];
+  4 -> 2 [ label = "ε" ];
+  4 -> 0 [ label = "ε" ];
+  3 -> 5 [ label = "ε" ];
+  1 -> 5 [ label = "ε" ];
+  6 -> 4 [ label = "ε" ];
+  6 -> 7 [ label = "ε" ];
+  5 -> 7 [ label = "ε" ];
+  5 -> 4 [ label = "ε" ];
+  8 -> 9 [ label = "a" ];
+  7 -> 8 [ label = "ε" ];
+  10 -> 11 [ label = "b" ];
+  9 -> 10 [ label = "ε" ];
+  12 -> 13 [ label = "b" ];
+  11 -> 12 [ label = "ε" ];
+}

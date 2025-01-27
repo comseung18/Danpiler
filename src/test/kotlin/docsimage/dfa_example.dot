@@ -1,0 +1,16 @@
+digraph DFA {
+  rankdir=LR;
+  size="15,10";
+  dpi=300;
+  start [shape=point];
+  22 [shape=doublecircle];
+  start -> 19 [ label = "ε" ];
+  19 -> 20 [ label = "a" ];
+  19 -> 19 [ label = "b" ];
+  20 -> 20 [ label = "a" ];
+  20 -> 21 [ label = "b" ];
+  21 -> 22 [ label = "b" ];
+  21 -> 20 [ label = "a" ];
+  22 -> 20 [ label = "a" ];
+  22 -> 19 [ label = "b" ];
+}
