@@ -1,5 +1,6 @@
 import java.util.Stack
 
+const val AnySymbolChar = '.'
 enum class Operator(val op: Char, val priority: Int) {
 
     Union('|', 1),

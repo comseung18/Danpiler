@@ -20,7 +20,7 @@ sealed class SyntaxTree {
 
         class FollowPosCalculator(private val syntaxTree: SyntaxTree) {
             val followPos: MutableMap<Int, MutableSet<Int>> = mutableMapOf()
-            val posToSymbol: MutableMap<Int, Symbol.CharSymbol> = mutableMapOf()
+            val posToSymbol: MutableMap<Int, Symbol.NonEmptySymbol> = mutableMapOf()
 
             fun calculate() {
                 dfs(syntaxTree)
@@ -58,7 +58,7 @@ sealed class SyntaxTree {
     }
 }
 
-data class SymbolNode(val symbol: Symbol.CharSymbol) : SyntaxTree() {
+data class SymbolNode(val symbol: Symbol.NonEmptySymbol) : SyntaxTree() {
     var position: Int = 0
     override var nullable: Boolean = false
 
@@ -159,10 +159,16 @@ private fun buildSyntaxTree(postFixRegex: String): SyntaxTree {
             }
             else -> {
 
-                val symNode = if(c != '\\'){
-                    SymbolNode(Symbol.CharSymbol(c)).apply { this.position = position++ }
-                } else {
-                    SymbolNode(Symbol.CharSymbol(postFixRegex[i++])).apply { this.position = position++ }
+                val symNode = when (c) {
+                    '\\' -> {
+                        SymbolNode(Symbol.CharSymbol(postFixRegex[i++])).apply { this.position = position++ }
+                    }
+                    AnySymbolChar -> {
+                        SymbolNode(Symbol.AnySymbol).apply { this.position = position++ }
+                    }
+                    else -> {
+                        SymbolNode(Symbol.CharSymbol(c)).apply { this.position = position++ }
+                    }
                 }
 
                 stack.push(symNode)

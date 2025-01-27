@@ -146,7 +146,7 @@ class DFA(
                     if(isEnd(nowState)) newEndNodes.add(stateNode)
 
 
-                    val transitions = mutableMapOf<Symbol.CharSymbol, MutableSet<Int>>()
+                    val transitions = mutableMapOf<Symbol.NonEmptySymbol, MutableSet<Int>>()
                     for(p in nowState) {
                         transitions.computeIfAbsent(followPosCalculator.posToSymbol[p]!!){ mutableSetOf() }.addAll(
                             followPosCalculator.followPos[p].orEmpty()

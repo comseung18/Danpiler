@@ -2,7 +2,10 @@ import lexer.Token
 
 sealed interface Symbol {
     object EmptySymbol: Symbol
-    data class CharSymbol(val c: Char): Symbol
+
+    sealed interface NonEmptySymbol: Symbol
+    data class CharSymbol(val c: Char): NonEmptySymbol
+    object AnySymbol: NonEmptySymbol
 }
 
 data class Edge(

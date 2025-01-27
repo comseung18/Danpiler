@@ -46,7 +46,7 @@ open class NFA(
             val nextStates = mutableSetOf<Int>()
             for(state in currentStates) {
                 for (e in this.edges[state].orEmpty()) {
-                    if (e.v is Symbol.CharSymbol && e.v.c == c) {
+                    if ((e.v is Symbol.CharSymbol && e.v.c == c) || e.v is Symbol.AnySymbol) {
                         nextStates.add(e.to)
                     }
                 }
@@ -110,6 +110,7 @@ open class NFA(
                 val label = when(edge.v) {
                     is Symbol.EmptySymbol -> "ε"
                     is Symbol.CharSymbol -> edge.v.c.toString()
+                    is Symbol.AnySymbol -> "Any"
                 }
                 dot.append("  ${edge.from} -> ${edge.to} [ label = \"${escapeString(label)}\" ];\n")
             }
@@ -432,6 +433,8 @@ fun toNFA(regex: String, token: Token? = null) : NFA {
             else -> {
                 val symbol: Symbol = if(c == '\\') {
                     Symbol.CharSymbol(postFix[i++])
+                } else if(c == AnySymbolChar) {
+                    Symbol.AnySymbol
                 } else {
                     Symbol.CharSymbol(c)
                 }
