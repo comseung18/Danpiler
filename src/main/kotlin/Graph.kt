@@ -17,7 +17,7 @@ data class Edge(
 
 class Node {
     fun getResolvedTokenType(tokenString: String, lastMatchingTokens: Set<Token>?): Token {
-        return lastMatchingTokens?.firstOrNull {
+        return lastMatchingTokens?.sortedBy { it.ordinal }?.firstOrNull {
             it.dfa.match(tokenString)
         } ?: Token.InvalidToken
     }
@@ -40,7 +40,9 @@ open class Graph {
 
     fun getTransitions(here: Node, symbol: Symbol): List<Node> {
         return  this.edges[here.i]?.mapNotNull { edge ->
-            if(edge.v == symbol) {
+            if(edge.v == symbol ||
+                edge.v == Symbol.EmptySymbol ||
+                edge.v == Symbol.AnySymbol) {
                 nodes[edge.to]
             } else null
         }?.distinct() ?: emptyList()

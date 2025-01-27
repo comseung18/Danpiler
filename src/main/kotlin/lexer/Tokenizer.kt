@@ -55,7 +55,7 @@ object Tokenizer {
                     if (tokenType == Token.InvalidToken) {
                         throw IllegalArgumentException("Invalid token detected: '${currentToken}'")
                     }
-                    if (tokenType != Token.WhiteSpaceToken) { // 공백은 추가하지 않음
+                    if (tokenType.isIgnoreWhenParsing.not()) {
                         tokens.add(tokenType to currentToken.toString())
                     }
                     currentToken.clear()
@@ -75,7 +75,7 @@ object Tokenizer {
             if (tokenType == Token.InvalidToken) {
                 throw IllegalArgumentException("Invalid token detected: '${currentToken}'")
             }
-            if (tokenType != Token.WhiteSpaceToken) { // 공백은 추가하지 않음
+            if (tokenType.isIgnoreWhenParsing.not()) {
                 tokens.add(tokenType to currentToken.toString())
             }
         } else if (currentToken.isNotEmpty()) {

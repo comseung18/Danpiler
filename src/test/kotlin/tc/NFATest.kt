@@ -1,13 +1,17 @@
+package tc
+
+import NFA
+import Symbol
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import toNFA
 
 
 class NFATest {
 
     @Test
     fun testSingleCharacter() {
-        val regex = "a"
         val nfa = NFA.fromSymbol(Symbol.CharSymbol('a'))
 
         assertTrue(nfa.match("a"), "Pattern 'a' should match 'a'")

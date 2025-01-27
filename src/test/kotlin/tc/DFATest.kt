@@ -1,11 +1,16 @@
+package tc
+
+import DFA
+import NFA
+import Symbol
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import toNFA
 
 class DFATest {
     @Test
     fun testSingleCharacter() {
-        val regex = "a"
         val nfa = NFA.fromSymbol(Symbol.CharSymbol('a'))
         val dfa = nfa.toDFA() // 단일 토큰 유형 사용
 

@@ -1,5 +1,9 @@
+package tc
+
+import DFA
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import toNFA
 
 class TokenizerDotOperatorTest {
 

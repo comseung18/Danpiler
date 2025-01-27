@@ -1,3 +1,7 @@
+package tc
+
+import Operator
+import insertExplicitConcatOp
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
