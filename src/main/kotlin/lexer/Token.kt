@@ -17,7 +17,7 @@ enum class Token(
     IntNumberToken("NUMBER", "$zeroToNine+"),
     FloatNumberToken("NUMBER", "$zeroToNine+\\.$zeroToNine+"),
     KeywordToken("KEYWORD", _keywords.joinToString(separator = "|")),
-    OperatorToken("OPERATOR", "\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-"),
+    OperatorToken("OPERATOR", "\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-|\\+="),
     IdentifierToken("IDENTIFIER", "($aToz|$AToZ|_)($aToz|$AToZ|_|$zeroToNine)*"),
     LParenToken("LPAREN", "\\("),
     RParenToken("RPAREN", "\\)"),

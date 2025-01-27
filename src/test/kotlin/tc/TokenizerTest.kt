@@ -86,4 +86,80 @@ class TokenizerTest {
         val actualTokens = Tokenizer.tokenize(input)
         assertEquals(expectedTokens, actualTokens)
     }
+
+    @Test
+    fun `test identifier starting with underscore`() {
+        val input = "_myVariable = 123;"
+        val expectedTokens = listOf(
+            Token.IdentifierToken to "_myVariable",
+            Token.OperatorToken to "=",
+            Token.IntNumberToken to "123",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test mixed operators`() {
+        val input = "a += b-- * c;"
+        val expectedTokens = listOf(
+            Token.IdentifierToken to "a",
+            Token.OperatorToken to "+=",
+            Token.IdentifierToken to "b",
+            Token.OperatorToken to "--",
+            Token.OperatorToken to "*",
+            Token.IdentifierToken to "c",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test various whitespaces`() {
+        val input = "int\tvar\n=\r42;"
+        val expectedTokens = listOf(
+            Token.KeywordToken to "int",
+            Token.IdentifierToken to "var",
+            Token.OperatorToken to "=",
+            Token.IntNumberToken to "42",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test invalid complex input`() {
+        val input = "42..34" // 잘못된 FLOAT 형태
+        assertThrows(IllegalArgumentException::class.java) {
+            Tokenizer.tokenize(input)
+        }
+    }
+
+    @Test
+    fun `test long valid input`() {
+        val input = "while (i < 100000) { total += i; i++; }"
+        val expectedTokens = listOf(
+            Token.KeywordToken to "while",
+            Token.LParenToken to "(",
+            Token.IdentifierToken to "i",
+            Token.OperatorToken to "<",
+            Token.IntNumberToken to "100000",
+            Token.RParenToken to ")",
+            Token.LBraceToken to "{",
+            Token.IdentifierToken to "total",
+            Token.OperatorToken to "+=",
+            Token.IdentifierToken to "i",
+            Token.SemicolonToken to ";",
+            Token.IdentifierToken to "i",
+            Token.OperatorToken to "++",
+            Token.SemicolonToken to ";",
+            Token.RBraceToken to "}"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
 }
