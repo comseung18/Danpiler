@@ -8,11 +8,6 @@ import org.junit.jupiter.api.Test
 
 class TokenizerTest {
 
-//    @Test
-//    fun `test comment token`() {
-//        Tokenizer.dfa.printToFile()
-//    }
-
     @Test
     fun `test single valid token`() {
         val input = "123"

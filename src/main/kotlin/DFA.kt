@@ -6,13 +6,13 @@ class DFA(
     companion object {
         fun stateMinimizedDFA(dfa: DFA) : DFA {
             // collect input symbols
-            val symbols = dfa.edges.flatMap { it.value }.mapNotNull { (it.v as? Symbol.CharSymbol) }.distinct()
+            val symbols = dfa.edges.flatMap { it.value }.map { it.v }
+
             // collect node to node each symbol
-            val nodeToNodeMapEachSymbol: MutableMap<Pair<Int, Symbol.CharSymbol>, Int> = mutableMapOf()
-            dfa.edges.forEach { (i, edges) ->
+            val nodeToNodeMapEachSymbol: MutableMap<Pair<Int, Symbol>, Int> = mutableMapOf()
+            dfa.edges.forEach { (from, edges) ->
                 for(edge in edges) {
-                    if(edge.v !is Symbol.CharSymbol) continue
-                    nodeToNodeMapEachSymbol[i to edge.v] = edge.to
+                    nodeToNodeMapEachSymbol[from to edge.v] = edge.to
                 }
             }
 
@@ -54,12 +54,14 @@ class DFA(
                     }
 
                     checkedPartitionMap.add(partitionNum!!)
+
+                    /////////////////////
                     var foundPartitionHere = false
-                    for(c in symbols) {
+                    for(s in symbols) {
                         val targetPartitionNum: MutableMap<Int, Int> = mutableMapOf()
 
                         for(n in partition) {
-                            targetPartitionNum[n] = nodeToPartitionNum[nodeToNodeMapEachSymbol[n to c]] ?: -1
+                            targetPartitionNum[n] = nodeToPartitionNum[nodeToNodeMapEachSymbol[n to s]] ?: -1
                         }
                         val partitioned = targetPartitionNum
                             .keys.groupBy { k -> targetPartitionNum[k]!! }

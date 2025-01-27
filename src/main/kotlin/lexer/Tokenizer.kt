@@ -43,11 +43,11 @@ object Tokenizer {
             if (nextState != null) {
                 currentToken.append(char)
                 currentState = nextState
-
+                ++currentIndex
                 if (currentState.matchingTokens.isNotEmpty()) {
                     lastMatchingTokens = currentState.matchingTokens
                     lastAcceptingState = currentState
-                    lastTokenStartIndex = ++currentIndex
+                    lastTokenStartIndex = currentIndex
                 }
             } else {
                 if (lastAcceptingState != null) {
