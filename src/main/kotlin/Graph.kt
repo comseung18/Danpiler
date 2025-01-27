@@ -1,3 +1,5 @@
+import lexer.Token
+
 sealed interface Symbol {
     object EmptySymbol: Symbol
     data class CharSymbol(val c: Char): Symbol
@@ -25,6 +27,14 @@ open class Graph {
 
     fun getNodesForTest(): Map<Int, Node> = nodes
     fun getEdgesForTest(): Map<Int, List<Edge>> = edges.mapValues { it.value.toList() }
+
+    fun getTransitions(here: Node, symbol: Symbol): List<Node> {
+        return  this.edges[here.i]?.mapNotNull { edge ->
+            if(edge.v == symbol) {
+                nodes[edge.to]
+            } else null
+        }?.distinct() ?: emptyList()
+    }
 
     fun addNode(node: Node) {
         nodes[node.i] = node

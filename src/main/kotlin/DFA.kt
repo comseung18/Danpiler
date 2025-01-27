@@ -116,8 +116,6 @@ class DFA(
             val additionalRegex = "($regex)#"
 
             val postFix = toPostfix(insertExplicitConcatOp(additionalRegex))
-            println(insertExplicitConcatOp(additionalRegex))
-            println(postFix)
             val syntaxTree = SyntaxTree.fromRegex(postFix)
             val followPosCalculator =  SyntaxTree.Companion.FollowPosCalculator(syntaxTree).apply {
                 calculate()

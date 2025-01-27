@@ -1,16 +1,43 @@
-digraph NFA {
+digraph DFA {
   rankdir=LR;
-  size="8,5";
-
+  size="15,10";
+  dpi=300;
   start [shape=point];
-  9 [shape=doublecircle];
-  start -> 5 [ label = "ε" ];
-  5 -> 5 [ label = "a" ];
-  5 -> 6 [ label = "b" ];
-  6 -> 6 [ label = "b" ];
-  6 -> 7 [ label = "c" ];
-  6 -> 9 [ label = "d" ];
-  7 -> 9 [ label = "d" ];
-  9 -> 9 [ label = "d" ];
-  9 -> 8 [ label = "#" ];
+  83 [shape=doublecircle, label="83\nSEMICOLON"];
+  84 [shape=doublecircle, label="84\nLBRACE"];
+  85 [shape=doublecircle, label="85\nRBRACE"];
+  86 [shape=doublecircle, label="86\nRPAREN"];
+  87 [shape=doublecircle, label="87\nLPAREN"];
+  92 [shape=doublecircle, label="92\nKEYWORD"];
+  95 [shape=doublecircle, label="95\nKEYWORD"];
+  97 [shape=doublecircle, label="97\nKEYWORD"];
+  101 [shape=doublecircle, label="101\nKEYWORD"];
+  102 [shape=doublecircle, label="102\nKEYWORD"];
+  103 [shape=doublecircle, label="103\nKEYWORD"];
+  start -> 78 [ label = "ε" ];
+  78 -> 79 [ label = "f" ];
+  78 -> 80 [ label = "w" ];
+  78 -> 81 [ label = "i" ];
+  78 -> 82 [ label = "e" ];
+  78 -> 83 [ label = ";" ];
+  78 -> 84 [ label = "{" ];
+  78 -> 85 [ label = "}" ];
+  78 -> 86 [ label = ")" ];
+  78 -> 87 [ label = "(" ];
+  79 -> 88 [ label = "l" ];
+  79 -> 89 [ label = "o" ];
+  80 -> 90 [ label = "h" ];
+  81 -> 91 [ label = "n" ];
+  81 -> 92 [ label = "f" ];
+  82 -> 93 [ label = "l" ];
+  88 -> 94 [ label = "o" ];
+  89 -> 95 [ label = "r" ];
+  90 -> 96 [ label = "i" ];
+  91 -> 97 [ label = "t" ];
+  93 -> 98 [ label = "s" ];
+  94 -> 99 [ label = "a" ];
+  96 -> 100 [ label = "l" ];
+  98 -> 101 [ label = "e" ];
+  99 -> 102 [ label = "t" ];
+  100 -> 103 [ label = "e" ];
 }

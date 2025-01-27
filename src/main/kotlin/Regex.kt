@@ -6,7 +6,7 @@ enum class Operator(val op: Char, val priority: Int) {
     Kleene('*', 3),
     Optional('?', 3),
     Plus('+', 3),
-    Concat('.', 2);
+    Concat( '볡', 2);
 
     fun isClosure() : Boolean {
         return this == Kleene || this == Optional || this == Plus

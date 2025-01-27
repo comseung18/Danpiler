@@ -406,4 +406,25 @@ class NFATest {
         assertFalse(nfa.match("a\\bb"), "Pattern 'a\\\\b' should not match 'a\\bb'")
         assertFalse(nfa.match("a\\b\\b"), "Pattern 'a\\\\b' should not match 'a\\b\\b'")
     }
+
+    @Test
+    fun testNumber() {
+        val regex = "(0|1|2|3|4|5|6|7|8|9)+"
+        val nfa = toNFA(regex)
+
+        assertTrue(nfa.match("123123123"), "Pattern 'a\\\\b' should match 'a\\b'")
+        assertTrue(nfa.match("11591871654"), "Pattern 'a\\\\b' should not match 'ab'")
+        assertTrue(nfa.match("2135612136523"), "Pattern 'a\\\\b' should not match 'a\\bb'")
+        assertTrue(nfa.match("1232135236156213"), "Pattern 'a\\\\b' should not match 'a\\b\\b'")
+    }
+
+    @Test
+    fun testWhiteSpace() {
+        val regex = "( |\t|\n|\r|\u000C)+"
+        val nfa = toNFA(regex)
+        assertTrue(nfa.match("   "), "Pattern 'a\\\\b' should match 'a\\b'")
+        assertTrue(nfa.match("  \n\n"), "Pattern 'a\\\\b' should not match 'ab'")
+        assertTrue(nfa.match("\t\n"), "Pattern 'a\\\\b' should not match 'a\\bb'")
+        assertTrue(nfa.match(" \t\n\r\u000C"), "Pattern 'a\\\\b' should not match 'a\\b\\b'")
+    }
 }

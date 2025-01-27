@@ -4,8 +4,10 @@ import org.junit.jupiter.api.assertThrows
 
 class InsertConcatOpTest {
 
+    private val concatChar = Operator.Concat.op
     @Test
     fun testNoConcatWithEmptyGroup() {
+
         val regex = "()#"
         val expected = "#"
         val actual = insertExplicitConcatOp(regex)
@@ -15,7 +17,7 @@ class InsertConcatOpTest {
     @Test
     fun testMultipleEmptyGroups() {
         val regex = "()()()a()b()c"
-        val expected = "a.b.c"
+        val expected = "a${concatChar}b${concatChar}c"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle multiple empty groups and insert '.' appropriately")
     }
@@ -23,7 +25,7 @@ class InsertConcatOpTest {
     @Test
     fun testConcatBetweenLiteralAndGroup() {
         val regex = "a(b)c"
-        val expected = "a.(b).c"
+        val expected = "a${concatChar}(b)${concatChar}c"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should insert '.' between literals and groups")
     }
@@ -31,7 +33,7 @@ class InsertConcatOpTest {
     @Test
     fun testNoConcatWithinGroup() {
         val regex = "(ab)*"
-        val expected = "(a.b)*"
+        val expected = "(a${concatChar}b)*"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should not insert '.' within a group")
     }
@@ -39,7 +41,7 @@ class InsertConcatOpTest {
     @Test
     fun testConcatWithClosure() {
         val regex = "a*b"
-        val expected = "a*.b"
+        val expected = "a*${concatChar}b"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should not insert '.' between '*' and 'b'")
     }
@@ -47,7 +49,7 @@ class InsertConcatOpTest {
     @Test
     fun testMultipleConcats() {
         val regex = "a(b|c)d"
-        val expected = "a.(b|c).d"
+        val expected = "a${concatChar}(b|c)${concatChar}d"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should insert '.' between 'a' and '(b|c)', and between '(b|c)' and 'd'")
     }
@@ -55,7 +57,7 @@ class InsertConcatOpTest {
     @Test
     fun testConcatWithStartAndEnd() {
         val regex = "(a|b)*c#"
-        val expected = "(a|b)*.c.#"
+        val expected = "(a|b)*${concatChar}c${concatChar}#"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should insert '.' between '(a|b)*' and 'c', but not before '#'")
     }
@@ -63,7 +65,7 @@ class InsertConcatOpTest {
     @Test
     fun testNoConcatWithOnlyOperators() {
         val regex = "*+?#"
-        val expected = "*+?.#"
+        val expected = "*+?${concatChar}#"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should not insert '.' between consecutive operators")
     }
@@ -103,14 +105,14 @@ class InsertConcatOpTest {
     @Test
     fun testNestedEmptyGroups() {
         val regex = "((())())a(b())c"
-        val expected = "a.(b).c"
+        val expected = "a${concatChar}(b)${concatChar}c"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle nested empty groups and insert '.' appropriately")
     }
 
     @Test
     fun testThrowExceptionForForbiddenChars() {
-        val regex = ".a"
+        val regex = "${concatChar}a"
         assertThrows<IllegalArgumentException> {
             insertExplicitConcatOp(regex)
         }
@@ -119,7 +121,7 @@ class InsertConcatOpTest {
     @Test
     fun testConcatWithNonEmptyAndEmptyGroups() {
         val regex = "(a)b()c"
-        val expected = "(a).b.c"
+        val expected = "(a)${concatChar}b${concatChar}c"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle mix of non-empty and empty groups")
     }
@@ -127,7 +129,7 @@ class InsertConcatOpTest {
     @Test
     fun testEscapedCharacters() {
         val regex = "a\\*b"
-        val expected = "a.\\*.b"
+        val expected = "a${concatChar}\\*${concatChar}b"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should not insert '.' inside escaped characters and correctly handle them")
     }
@@ -135,7 +137,7 @@ class InsertConcatOpTest {
     @Test
     fun testEscapedParentheses() {
         val regex = "a\\(b\\)c"
-        val expected = "a.\\(.b.\\).c"
+        val expected = "a${concatChar}\\(${concatChar}b${concatChar}\\)${concatChar}c"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle escaped parentheses and insert '.' appropriately")
     }
@@ -143,7 +145,7 @@ class InsertConcatOpTest {
     @Test
     fun testComplexEscapedCharacters() {
         val regex = "\\(a\\*\\+\\).b"
-        val expected = "\\(.a.\\*.\\+\\).b"
+        val expected = "\\(${concatChar}a${concatChar}\\*${concatChar}\\+${concatChar}\\)${concatChar}.${concatChar}b"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle complex escaped characters")
     }
@@ -151,7 +153,7 @@ class InsertConcatOpTest {
     @Test
     fun testEscapedBackslash() {
         val regex = "a\\\\b"
-        val expected = "a.\\\\.b"
+        val expected = "a${concatChar}\\\\${concatChar}b"
         val actual = insertExplicitConcatOp(regex)
         assertEquals(expected, actual, "Should correctly handle escaped backslashes")
     }

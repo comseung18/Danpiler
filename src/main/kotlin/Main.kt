@@ -1,6 +1,5 @@
 class Foo(private val foo: MutableList<Int>) {
     fun f() {
-        println(foo)
     }
 }
 fun main() {

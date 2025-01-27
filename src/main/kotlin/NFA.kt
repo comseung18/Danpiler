@@ -1,3 +1,6 @@
+import lexer.Token
+import java.io.File
+import java.io.PrintWriter
 import java.util.*
 
 open class NFA(
@@ -55,20 +58,46 @@ open class NFA(
         return endNodes.any { it.i in currentStates }
     }
 
+    private fun escapeString(input: String): String {
+        val escapeMap = mapOf(
+            '\t' to "\\t",
+            '\n' to "\\n",
+            '\r' to "\\r",
+            '\b' to "\\b",
+            '\u000C' to "\\f", // 폼 피드
+            '\\' to "\\\\",    // 백슬래시
+            '"' to "\\\"",     // 큰따옴표
+            '\'' to "\\\'"     // 작은따옴표
+        )
+
+        val builder = StringBuilder()
+        for (char in input) {
+            builder.append(escapeMap[char] ?: char)
+        }
+        return builder.toString()
+    }
+
     // DOT 형식으로 그래프 출력
     fun toDot(): String {
-        val dot = StringBuilder("digraph NFA {\n")
+        val dot = StringBuilder("digraph ${javaClass.name} {\n")
 
-        // 그래프 방향과 크기 설정 (선택 사항)
+        // 그래프 방향과 크기 설정
         dot.append("  rankdir=LR;\n")
-        dot.append("  size=\"8,5\";\n\n")
+        dot.append("  size=\"15,10\";\n  dpi=300;\n")
 
         // 시작점을 나타내는 비활성 노드 정의
         dot.append("  start [shape=point];\n")
 
-        // 종료 노드를 이중 원으로 정의
-        endNodes.forEach {
-            dot.append("  ${it.i} [shape=doublecircle];\n")
+        // 모든 노드에 토큰 정보 추가
+        nodes.values.forEach { node ->
+           // val token = node.matchingToken?.tokenName ?: ""
+            val token = ""
+            val shape = if (endNodes.contains(node)) "doublecircle" else "circle"
+            if(token.isNotEmpty()) {
+                dot.append("  ${node.i} [shape=$shape, label=\"${node.i}\\n$token\"];\n")
+            } else if(endNodes.contains(node)) {
+                dot.append("  ${node.i} [shape=$shape];\n")
+            }
         }
 
         // 시작점에서 실제 시작 노드로 ε 전이 추가
@@ -83,12 +112,46 @@ open class NFA(
                     is Symbol.EmptySymbol -> "ε"
                     is Symbol.CharSymbol -> edge.v.c.toString()
                 }
-                dot.append("  ${edge.from} -> ${edge.to} [ label = \"$label\" ];\n")
+                dot.append("  ${edge.from} -> ${edge.to} [ label = \"${escapeString(label)}\" ];\n")
             }
         }
 
         dot.append("}")
         return dot.toString()
+    }
+
+
+    fun printToFile(
+        outputFileName: String = "test1",
+        extension: String = "pdf"
+    ) {
+        val dotContent = this.toDot() // DOT 형식 문자열 생성
+
+        // 출력 파일 경로 설정
+        val outputDirectory = File("/Users/kakao/IdeaProjects/compiler/src/test/kotlin")
+        val outputPdfFile = File(outputDirectory, "$outputFileName.$extension")
+
+        // 임시 DOT 파일 생성
+        val dotFile = File(outputDirectory, "$outputFileName.dot")
+
+        kotlin.runCatching {
+            // DOT 내용을 임시 파일에 작성
+            PrintWriter(dotFile).use { writer ->
+                writer.write(dotContent)
+            }
+
+            // Graphviz dot 명령어를 실행하여 PDF 생성
+            val process =
+                ProcessBuilder("dot", "-T${extension}", dotFile.absolutePath, "-o", outputPdfFile.absolutePath)
+                    .redirectErrorStream(true) // 오류를 표준 출력으로 리디렉션
+                    .start()
+
+            val exitCode = process.waitFor() // 명령어 실행 완료 대기
+
+            if (exitCode != 0) {
+                val errorMessage = process.inputStream.bufferedReader()
+            }
+        }
     }
 
     fun toDFA() : DFA {

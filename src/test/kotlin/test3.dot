@@ -1,0 +1,31 @@
+digraph DFA {
+  rankdir=LR;
+  size="15,10";
+  dpi=300;
+  start [shape=point];
+  117 [shape=doublecircle];
+  start -> 104 [ label = "ε" ];
+  104 -> 105 [ label = "f" ];
+  104 -> 107 [ label = "w" ];
+  104 -> 116 [ label = "i" ];
+  104 -> 106 [ label = "e" ];
+  104 -> 117 [ label = ";" ];
+  104 -> 117 [ label = "{" ];
+  104 -> 117 [ label = "}" ];
+  104 -> 117 [ label = ")" ];
+  104 -> 117 [ label = "(" ];
+  105 -> 112 [ label = "l" ];
+  105 -> 108 [ label = "o" ];
+  107 -> 115 [ label = "h" ];
+  116 -> 109 [ label = "n" ];
+  116 -> 117 [ label = "f" ];
+  106 -> 110 [ label = "l" ];
+  112 -> 111 [ label = "o" ];
+  108 -> 117 [ label = "r" ];
+  115 -> 113 [ label = "i" ];
+  109 -> 117 [ label = "t" ];
+  110 -> 114 [ label = "s" ];
+  111 -> 109 [ label = "a" ];
+  113 -> 114 [ label = "l" ];
+  114 -> 117 [ label = "e" ];
+}
