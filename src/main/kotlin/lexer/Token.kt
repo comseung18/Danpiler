@@ -36,5 +36,9 @@ enum class Token(
     val nfa by lazy {
         toNFA(this.regex, this)
     }
+
+    val dfa by lazy {
+        DFA.stateMinimizedDFA(nfa.toDFA())
+    }
 }
 

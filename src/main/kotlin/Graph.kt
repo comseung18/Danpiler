@@ -15,7 +15,7 @@ data class Edge(
 class Node {
     fun getResolvedTokenType(tokenString: String, lastMatchingTokens: Set<Token>?): Token {
         return lastMatchingTokens?.firstOrNull {
-            it.nfa.match(tokenString)
+            it.dfa.match(tokenString)
         } ?: Token.InvalidToken
     }
 
