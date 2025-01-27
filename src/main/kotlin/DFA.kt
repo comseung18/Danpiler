@@ -86,8 +86,10 @@ class DFA(
             }
             // make state-minimized DFA
             val partitionNumToNewDFANode: MutableMap<Int, Node> = mutableMapOf()
-            partitions.forEach {
-                partitionNumToNewDFANode.computeIfAbsent(nodeToPartitionNum[it.first()]!!) { Node() }
+            partitions.forEach { party ->
+                partitionNumToNewDFANode.computeIfAbsent(nodeToPartitionNum[party.first()]!!) { Node().apply {
+                    matchingTokens = party.mapNotNull { n -> dfa.nodes[n]?.matchingTokens }.flatten().toSet()
+                } }
             }
 
             return DFA(partitionNumToNewDFANode[nodeToPartitionNum[dfa.startNode.i]]!!,

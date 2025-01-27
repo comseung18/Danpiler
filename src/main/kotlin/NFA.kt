@@ -78,7 +78,7 @@ open class NFA(
     }
 
     // DOT 형식으로 그래프 출력
-    fun toDot(): String {
+    private fun toDot(): String {
         val dot = StringBuilder("digraph ${javaClass.name} {\n")
 
         // 그래프 방향과 크기 설정
@@ -90,8 +90,7 @@ open class NFA(
 
         // 모든 노드에 토큰 정보 추가
         nodes.values.forEach { node ->
-           // val token = node.matchingToken?.tokenName ?: ""
-            val token = ""
+            val token = node.matchingTokens.joinToString { it.tokenName }
             val shape = if (endNodes.contains(node)) "doublecircle" else "circle"
             if(token.isNotEmpty()) {
                 dot.append("  ${node.i} [shape=$shape, label=\"${node.i}\\n$token\"];\n")
@@ -146,11 +145,7 @@ open class NFA(
                     .redirectErrorStream(true) // 오류를 표준 출력으로 리디렉션
                     .start()
 
-            val exitCode = process.waitFor() // 명령어 실행 완료 대기
-
-            if (exitCode != 0) {
-                val errorMessage = process.inputStream.bufferedReader()
-            }
+            process.waitFor() // 명령어 실행 완료 대기
         }
     }
 
@@ -175,6 +170,11 @@ open class NFA(
             while(queue.isNotEmpty()) {
                 val currentSet = queue.removeFirst()
                 val currentDfaNodeNum = stateSetToDfaNodeNum[currentSet] ?: throw IllegalArgumentException("toDFA no dfa state")
+
+                this@apply.nodes[currentDfaNodeNum]?.matchingTokens = currentSet.mapNotNull {
+                    this@NFA.nodes[it]?.matchingTokens
+                }.flatten().toSet()
+
 
                 if(this@NFA.endNodes.any {it.i in currentSet }) {
                     val n = this@apply.nodes[currentDfaNodeNum] ?: throw IllegalArgumentException("toDFA no dfa state node for $currentDfaNodeNum")
@@ -355,7 +355,7 @@ fun kleene(a: NFA): NFA {
     }
 }
 
-fun toNFA(regex: String) : NFA {
+fun toNFA(regex: String, token: Token? = null) : NFA {
     if(regex.isEmpty()) {
         val st = Node()
         val ed = Node()
@@ -446,6 +446,12 @@ fun toNFA(regex: String) : NFA {
         throw IllegalArgumentException("잘못된 정규 표현식입니다.")
     }
 
-    return nfaStack.pop()
+    return nfaStack.pop().apply {
+        this@apply.endNodes.forEach {
+            if(token != null) {
+                it.matchingTokens = setOf(token)
+            }
+        }
+    }
 }
 

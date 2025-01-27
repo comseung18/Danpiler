@@ -13,7 +13,14 @@ data class Edge(
 
 
 class Node {
+    fun getResolvedTokenType(tokenString: String, lastMatchingTokens: Set<Token>?): Token {
+        return lastMatchingTokens?.firstOrNull {
+            it.nfa.match(tokenString)
+        } ?: Token.InvalidToken
+    }
+
     val i: Int = nextNodeId++
+    var matchingTokens : Set<Token> = emptySet()
 
     companion object {
         private var nextNodeId = 0
