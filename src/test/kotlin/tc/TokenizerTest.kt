@@ -69,7 +69,7 @@ class TokenizerTest {
     fun `test input with ignored whitespace`() {
         val input = "int x = 42; // Variable declaration \n"
         val expectedTokens = listOf(
-            Token.KeywordToken to "int",
+            Token.TypeToken to "int",
             Token.IdentifierToken to "x",
             Token.OperatorToken to "=",
             Token.IntNumberToken to "42",
@@ -120,7 +120,7 @@ class TokenizerTest {
     fun `test various whitespaces`() {
         val input = "int\tvar\n=\r42;"
         val expectedTokens = listOf(
-            Token.KeywordToken to "int",
+            Token.TypeToken to "int",
             Token.IdentifierToken to "var",
             Token.OperatorToken to "=",
             Token.IntNumberToken to "42",
