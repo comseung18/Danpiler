@@ -29,6 +29,8 @@ enum class Token(
     WhileToken("while"),
     IfToken("if"),
     ElseToken("else"),
+    ContinueToken("continue"),
+    BreakToken("break"),
 
     // 그 외 특별한 역할을 하는 토큰
     ClassToken("class"),
