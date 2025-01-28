@@ -8,25 +8,12 @@ const val zeroToNine = "(0|1|2|3|4|5|6|7|8|9)"
 const val whiteSpace = "( |\t|\n|\r|\u000C)"
 const val identifierRegex = "($aToz|$AToZ|_)($aToz|$AToZ|_|$zeroToNine)*"
 
-const val arrayType = "($identifierRegex)[]"
-
 private val types = listOf(
     "int",
     "float",
     "string",
     "boolean",
     "void",
-    arrayType
-)
-
-private val _keywords = listOf(
-    "for",
-    "while",
-    "if",
-    "else",
-    "class",
-    "new",
-    "delete"
 )
 
 
@@ -36,7 +23,18 @@ enum class Token(
 ) {
     IntNumberToken( "$zeroToNine+"),
     FloatNumberToken("$zeroToNine+\\.$zeroToNine+"),
-    KeywordToken( _keywords.joinToString(separator = "|")),
+
+    // control-token
+    ForToken("for"),
+    WhileToken("while"),
+    IfToken("if"),
+    ElseToken("else"),
+
+    // 그 외 특별한 역할을 하는 토큰
+    ClassToken("class"),
+    NewToken("new"),
+    DeleteToken("delete"),
+
     TypeToken(types.joinToString(separator = "|")),
     OperatorToken("\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-|\\+="),
     IdentifierToken(identifierRegex),

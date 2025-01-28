@@ -32,7 +32,7 @@ class TokenizerTest {
     fun `test complex valid input`() {
         val input = "for (i = 0; i < 10; i++) { print(i); }"
         val expectedTokens = listOf(
-            Token.KeywordToken to "for",
+            Token.ForToken to "for",
             Token.LParenToken to "(",
             Token.IdentifierToken to "i",
             Token.OperatorToken to "=",
@@ -142,7 +142,7 @@ class TokenizerTest {
     fun `test long valid input`() {
         val input = "while (i < 100000) { total += i; i++; }"
         val expectedTokens = listOf(
-            Token.KeywordToken to "while",
+            Token.WhileToken to "while",
             Token.LParenToken to "(",
             Token.IdentifierToken to "i",
             Token.OperatorToken to "<",
@@ -162,4 +162,109 @@ class TokenizerTest {
         assertEquals(expectedTokens, actualTokens)
     }
 
+    @Test
+    fun `test type tokens`() {
+        val input = "int x = 42; float arr = 3.14;"
+        val expectedTokens = listOf(
+            Token.TypeToken to "int",
+            Token.IdentifierToken to "x",
+            Token.OperatorToken to "=",
+            Token.IntNumberToken to "42",
+            Token.SemicolonToken to ";",
+            Token.TypeToken to "float",
+            Token.IdentifierToken to "arr",
+            Token.OperatorToken to "=",
+            Token.FloatNumberToken to "3.14",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test new and delete keywords`() {
+        val input = "new MyClass(); delete obj;"
+        val expectedTokens = listOf(
+            Token.NewToken to "new",
+            Token.IdentifierToken to "MyClass",
+            Token.LParenToken to "(",
+            Token.RParenToken to ")",
+            Token.SemicolonToken to ";",
+            Token.DeleteToken to "delete",
+            Token.IdentifierToken to "obj",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test operators`() {
+        val input = "a += 10; b++; if (a == b) { print(a); }"
+        val expectedTokens = listOf(
+            Token.IdentifierToken to "a",
+            Token.OperatorToken to "+=",
+            Token.IntNumberToken to "10",
+            Token.SemicolonToken to ";",
+            Token.IdentifierToken to "b",
+            Token.OperatorToken to "++",
+            Token.SemicolonToken to ";",
+            Token.IfToken to "if",
+            Token.LParenToken to "(",
+            Token.IdentifierToken to "a",
+            Token.OperatorToken to "==",
+            Token.IdentifierToken to "b",
+            Token.RParenToken to ")",
+            Token.LBraceToken to "{",
+            Token.IdentifierToken to "print",
+            Token.LParenToken to "(",
+            Token.IdentifierToken to "a",
+            Token.RParenToken to ")",
+            Token.SemicolonToken to ";",
+            Token.RBraceToken to "}"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test array declaration and access`() {
+        val input = "int[] numbers = new int[5]; numbers[0] = 42;"
+        val expectedTokens = listOf(
+            Token.TypeToken to "int",
+            Token.LSquareToken to "[",
+            Token.RSquareToken to "]",
+            Token.IdentifierToken to "numbers",
+            Token.OperatorToken to "=",
+            Token.NewToken to "new",
+            Token.TypeToken to "int",
+            Token.LSquareToken to "[",
+            Token.IntNumberToken to "5",
+            Token.RSquareToken to "]",
+            Token.SemicolonToken to ";",
+            Token.IdentifierToken to "numbers",
+            Token.LSquareToken to "[",
+            Token.IntNumberToken to "0",
+            Token.RSquareToken to "]",
+            Token.OperatorToken to "=",
+            Token.IntNumberToken to "42",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test single-line and multi-line comments`() {
+        val input = "// This is a single-line comment\n/* This is a multi-line comment */ int x = 10;"
+        val expectedTokens = listOf(
+            Token.TypeToken to "int",
+            Token.IdentifierToken to "x",
+            Token.OperatorToken to "=",
+            Token.IntNumberToken to "10",
+            Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
 }
