@@ -36,6 +36,7 @@ enum class Token(
     ClassToken("class"),
     NewToken("new"),
     DeleteToken("delete"),
+    FunctionToken("func"),
 
     TypeToken(types.joinToString(separator = "|")),
     OperatorToken("\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-|\\+="),
@@ -72,7 +73,7 @@ enum class Token(
 
     ;
 
-    val tokenName: String = this::class.java.name
+    val tokenName: String = this.name
 
     val nfa by lazy {
         toNFA(this.regex, this)
