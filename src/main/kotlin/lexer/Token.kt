@@ -31,12 +31,15 @@ enum class Token(
     ElseToken("else"),
     ContinueToken("continue"),
     BreakToken("break"),
+    ReturnToken("return"),
 
     // 그 외 특별한 역할을 하는 토큰
     ClassToken("class"),
     NewToken("new"),
     DeleteToken("delete"),
     FunctionToken("func"),
+    PublicToken("public"),
+    PrivateToken("private"),
 
     TypeToken(types.joinToString(separator = "|")),
     OperatorToken("\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-|\\+="),
