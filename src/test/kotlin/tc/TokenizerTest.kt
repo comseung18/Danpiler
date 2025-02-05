@@ -21,7 +21,7 @@ class TokenizerTest {
         val input = "123 + 456"
         val expectedTokens = listOf(
             Token.IntNumberToken to "123",
-            Token.OperatorToken to "+",
+            Token.ArithmeticOperatorToken to "+",
             Token.IntNumberToken to "456"
         )
         val actualTokens = Tokenizer.tokenize(input)
@@ -35,15 +35,15 @@ class TokenizerTest {
             Token.ForToken to "for",
             Token.LParenToken to "(",
             Token.IdentifierToken to "i",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "0",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "i",
-            Token.OperatorToken to "<",
+            Token.ComparisonOperatorToken to "<",
             Token.IntNumberToken to "10",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "i",
-            Token.OperatorToken to "++",
+            Token.IncrementDecrementToken to "++",
             Token.RParenToken to ")",
             Token.LBraceToken to "{",
             Token.IdentifierToken to "print",
@@ -71,7 +71,7 @@ class TokenizerTest {
         val expectedTokens = listOf(
             Token.TypeToken to "int",
             Token.IdentifierToken to "x",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "42",
             Token.SemicolonToken to ";"
         )
@@ -92,7 +92,7 @@ class TokenizerTest {
         val input = "_myVariable = 123;"
         val expectedTokens = listOf(
             Token.IdentifierToken to "_myVariable",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "123",
             Token.SemicolonToken to ";"
         )
@@ -105,10 +105,10 @@ class TokenizerTest {
         val input = "a += b-- * c;"
         val expectedTokens = listOf(
             Token.IdentifierToken to "a",
-            Token.OperatorToken to "+=",
+            Token.AssignmentOperatorToken to "+=",
             Token.IdentifierToken to "b",
-            Token.OperatorToken to "--",
-            Token.OperatorToken to "*",
+            Token.IncrementDecrementToken to "--",
+            Token.ArithmeticOperatorToken to "*",
             Token.IdentifierToken to "c",
             Token.SemicolonToken to ";"
         )
@@ -122,7 +122,7 @@ class TokenizerTest {
         val expectedTokens = listOf(
             Token.TypeToken to "int",
             Token.IdentifierToken to "var",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "42",
             Token.SemicolonToken to ";"
         )
@@ -145,16 +145,16 @@ class TokenizerTest {
             Token.WhileToken to "while",
             Token.LParenToken to "(",
             Token.IdentifierToken to "i",
-            Token.OperatorToken to "<",
+            Token.ComparisonOperatorToken to "<",
             Token.IntNumberToken to "100000",
             Token.RParenToken to ")",
             Token.LBraceToken to "{",
             Token.IdentifierToken to "total",
-            Token.OperatorToken to "+=",
+            Token.AssignmentOperatorToken to "+=",
             Token.IdentifierToken to "i",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "i",
-            Token.OperatorToken to "++",
+            Token.IncrementDecrementToken to "++",
             Token.SemicolonToken to ";",
             Token.RBraceToken to "}"
         )
@@ -168,12 +168,12 @@ class TokenizerTest {
         val expectedTokens = listOf(
             Token.TypeToken to "int",
             Token.IdentifierToken to "x",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "42",
             Token.SemicolonToken to ";",
             Token.TypeToken to "float",
             Token.IdentifierToken to "arr",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.FloatNumberToken to "3.14",
             Token.SemicolonToken to ";"
         )
@@ -203,16 +203,16 @@ class TokenizerTest {
         val input = "a += 10; b++; if (a == b) { print(a); }"
         val expectedTokens = listOf(
             Token.IdentifierToken to "a",
-            Token.OperatorToken to "+=",
+            Token.AssignmentOperatorToken to "+=",
             Token.IntNumberToken to "10",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "b",
-            Token.OperatorToken to "++",
+            Token.IncrementDecrementToken to "++",
             Token.SemicolonToken to ";",
             Token.IfToken to "if",
             Token.LParenToken to "(",
             Token.IdentifierToken to "a",
-            Token.OperatorToken to "==",
+            Token.ComparisonOperatorToken to "==",
             Token.IdentifierToken to "b",
             Token.RParenToken to ")",
             Token.LBraceToken to "{",
@@ -235,7 +235,7 @@ class TokenizerTest {
             Token.LSquareToken to "[",
             Token.RSquareToken to "]",
             Token.IdentifierToken to "numbers",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.NewToken to "new",
             Token.TypeToken to "int",
             Token.LSquareToken to "[",
@@ -246,7 +246,7 @@ class TokenizerTest {
             Token.LSquareToken to "[",
             Token.IntNumberToken to "0",
             Token.RSquareToken to "]",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "42",
             Token.SemicolonToken to ";"
         )
@@ -260,7 +260,7 @@ class TokenizerTest {
         val expectedTokens = listOf(
             Token.TypeToken to "int",
             Token.IdentifierToken to "x",
-            Token.OperatorToken to "=",
+            Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "10",
             Token.SemicolonToken to ";"
         )

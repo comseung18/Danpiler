@@ -42,7 +42,13 @@ enum class Token(
     PrivateToken("private"),
 
     TypeToken(types.joinToString(separator = "|")),
-    OperatorToken("\\+|\\-|\\*|\\/|=|==|!=|<|>|<=|>=|\\+\\+|\\-\\-|\\+="),
+
+    // Operators
+    ArithmeticOperatorToken("\\+|\\-|\\*|\\/"),     // +, -, *, /
+    ComparisonOperatorToken("==|!=|<|>|<=|>="),    // ==, !=, <, >, <=, >=
+    AssignmentOperatorToken("=|\\+=|\\-="),             // =, +=
+    IncrementDecrementToken("\\+\\+|--"),          // ++, --
+
     IdentifierToken(identifierRegex),
     LParenToken("\\("),
     RParenToken("\\)"),
@@ -51,6 +57,7 @@ enum class Token(
     LSquareToken("["),
     RSquareToken("]"),
     SemicolonToken( ";"),
+    CommaToken(","),
 
     WhiteSpaceToken(
         "$whiteSpace+",
