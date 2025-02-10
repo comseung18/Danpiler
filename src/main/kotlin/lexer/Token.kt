@@ -46,7 +46,8 @@ enum class Token(
     // Operators
     ArithmeticOperatorToken("\\+|\\-|\\*|\\/"),     // +, -, *, /
     ComparisonOperatorToken("==|!=|<|>|<=|>="),    // ==, !=, <, >, <=, >=
-    AssignmentOperatorToken("=|\\+=|\\-="),             // =, +=
+    AssignmentOperatorToken("="),             // =
+    CompoundAssignmentOperator("\\+=|\\-="),             // =, +=
     IncrementDecrementToken("\\+\\+|--"),          // ++, --
 
     IdentifierToken(identifierRegex),
