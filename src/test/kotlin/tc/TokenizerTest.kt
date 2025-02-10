@@ -105,7 +105,7 @@ class TokenizerTest {
         val input = "a += b-- * c;"
         val expectedTokens = listOf(
             Token.IdentifierToken to "a",
-            Token.AssignmentOperatorToken to "+=",
+            Token.CompoundAssignmentOperator to "+=",
             Token.IdentifierToken to "b",
             Token.IncrementDecrementToken to "--",
             Token.ArithmeticOperatorToken to "*",
@@ -150,7 +150,7 @@ class TokenizerTest {
             Token.RParenToken to ")",
             Token.LBraceToken to "{",
             Token.IdentifierToken to "total",
-            Token.AssignmentOperatorToken to "+=",
+            Token.CompoundAssignmentOperator to "+=",
             Token.IdentifierToken to "i",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "i",
@@ -203,7 +203,7 @@ class TokenizerTest {
         val input = "a += 10; b++; if (a == b) { print(a); }"
         val expectedTokens = listOf(
             Token.IdentifierToken to "a",
-            Token.AssignmentOperatorToken to "+=",
+            Token.CompoundAssignmentOperator to "+=",
             Token.IntNumberToken to "10",
             Token.SemicolonToken to ";",
             Token.IdentifierToken to "b",
@@ -263,6 +263,69 @@ class TokenizerTest {
             Token.AssignmentOperatorToken to "=",
             Token.IntNumberToken to "10",
             Token.SemicolonToken to ";"
+        )
+        val actualTokens = Tokenizer.tokenize(input)
+        assertEquals(expectedTokens, actualTokens)
+    }
+
+    @Test
+    fun `test class create and access`() {
+        val input = """
+            class Foo(int x) {
+                public int y;
+            }
+            
+            int main() {
+                Foo f = new Foo(1);
+                f.y = 1;
+                
+                delete f;
+            }
+        """.trimIndent()
+
+        val expectedTokens = listOf(
+            Token.ClassToken to "class",
+            Token.IdentifierToken to "Foo",
+            Token.LParenToken to "(",
+            Token.TypeToken to "int",
+            Token.IdentifierToken to "x",
+            Token.RParenToken to ")",
+            Token.LBraceToken to "{",
+            Token.PublicToken to "public",
+            Token.TypeToken to "int",
+            Token.IdentifierToken to "y",
+            Token.SemicolonToken to ";",
+            Token.RBraceToken to "}",
+
+            Token.TypeToken to "int",
+            Token.IdentifierToken to "main",
+            Token.LParenToken to "(",
+            Token.RParenToken to ")",
+            Token.LBraceToken to "{",
+            Token.IdentifierToken to "Foo",
+            Token.IdentifierToken to "f",
+            Token.AssignmentOperatorToken to "=",
+            Token.NewToken to "new",
+            Token.IdentifierToken to "Foo",
+            Token.LParenToken to "(",
+            Token.IntNumberToken to "1",
+            Token.RParenToken to ")",
+            Token.SemicolonToken to ";",
+
+            Token.IdentifierToken to "f",
+            Token.DotToken to ".",
+            Token.IdentifierToken to "y",
+
+            Token.AssignmentOperatorToken to "=",
+            Token.IntNumberToken to "1",
+            Token.SemicolonToken to ";",
+
+            Token.DeleteToken to "delete",
+            Token.IdentifierToken to "f",
+
+            Token.SemicolonToken to ";",
+            Token.RBraceToken to "}"
+
         )
         val actualTokens = Tokenizer.tokenize(input)
         assertEquals(expectedTokens, actualTokens)

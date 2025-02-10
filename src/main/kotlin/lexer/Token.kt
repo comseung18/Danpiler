@@ -37,7 +37,6 @@ enum class Token(
     ClassToken("class"),
     NewToken("new"),
     DeleteToken("delete"),
-    FunctionToken("func"),
     PublicToken("public"),
     PrivateToken("private"),
 
@@ -59,6 +58,7 @@ enum class Token(
     RSquareToken("]"),
     SemicolonToken( ";"),
     CommaToken(","),
+    DotToken("\\."),
 
     WhiteSpaceToken(
         "$whiteSpace+",
