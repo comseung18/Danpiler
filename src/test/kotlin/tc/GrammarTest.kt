@@ -9,7 +9,31 @@ class GrammarTest {
 
     @Test
     fun `danLang BNF parsing`() {
-        parseBNF(danLangBNF)
+
+        val grammar = parseBNF(danLangBNF)
+
+        val expectedCanEmpty = mapOf(
+            "Program" to true,
+            "ClassDeclarations" to true,
+            "FunctionDeclarations" to true,
+            "ClassMembers" to true,
+            "Statements" to true,
+            "ParameterListOpt" to true,
+            "ElseIfOpt" to true,
+            "ElseOpt" to true,
+            "ExpressionOpt" to true,
+            "ExpressionTail" to true,
+            "TermTail" to true
+        )
+
+        grammar.rules.forEach { rule ->
+            val expected = expectedCanEmpty[rule.nonTerminal.name]
+            val actual = rule.canEmpty
+            if(expected != null) {
+                assertEquals(expected, actual, "Error in canEmpty calculation for <${rule.nonTerminal.name}>")
+            }
+        }
+
     }
 
     @Test
