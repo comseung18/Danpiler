@@ -14,7 +14,7 @@ sealed interface GrammarItem {
     val name: String
 }
 
-interface TerminalItem: GrammarItem {
+interface TerminalItem : GrammarItem {
     val value: String
 }
 
@@ -98,7 +98,7 @@ fun parseBNF(bnf: String): Grammar {
                 }
             }
 
-            if(production.isNotEmpty()) {
+            if (production.isNotEmpty()) {
                 productions.add(production)
             }
 
@@ -121,29 +121,30 @@ fun parseBNF(bnf: String): Grammar {
         changed = false
 
         grammarRules.forEach { grammarRule ->
-            if(!grammarRule.canEmpty) {
+            if (!grammarRule.canEmpty) {
                 var allCanEmpty = true
                 grammarRule.productions.forEach { production ->
                     production.forEach { item ->
-                        when(item) {
+                        when (item) {
                             is NonTerminalItem -> {
                                 val childCanEmpty = grammarRules.find { it.nonTerminal.name == item.name }?.canEmpty
                                     ?: throw IllegalArgumentException("unknown NonTerminalItem ${item.name} ")
 
-                                if(!childCanEmpty) {
+                                if (!childCanEmpty) {
                                     allCanEmpty = false
                                     return@forEach
                                 }
                             }
+
                             is TerminalItem -> {
                                 allCanEmpty = false
                                 return@forEach
                             }
                         }
                     }
-                    if(allCanEmpty) return@forEach
+                    if (allCanEmpty) return@forEach
                 }
-                if(allCanEmpty) {
+                if (allCanEmpty) {
                     grammarRule.canEmpty = true
                     changed = true
                 }
