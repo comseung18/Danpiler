@@ -1,13 +1,23 @@
 package parser
 
+private const val END_OF_INPUT = "$"
 
-class FirstFollowCalculator(private val grammar: Grammar) {
+class FirstFollowCalculator(private val grammar: Grammar, private val startSymbol: String) {
 
     private val firstSet = mutableMapOf<NonTerminalItem, MutableSet<TerminalItem>>()
-
+    private val followSet = mutableMapOf<NonTerminalItem, MutableSet<TerminalItem>>()
     init {
         firstSet.clear()
+        followSet.clear()
         calculateFirst()
+        calculateFollow()
+    }
+
+    fun getFollowSet(item: GrammarItem) : Set<TerminalItem> {
+        return when(item) {
+            is NonTerminalItem -> followSet[item] ?: throw IllegalArgumentException("no followSet for ${item.name}")
+            is TerminalItem -> emptySet()
+        }
     }
 
     fun getFirstSet(item: GrammarItem): Set<TerminalItem> {
@@ -49,4 +59,78 @@ class FirstFollowCalculator(private val grammar: Grammar) {
         } while(changed)
     }
 
+    private fun calculateFollow() {
+
+        followSet.getOrPut(NonTerminalItem(startSymbol)) { mutableSetOf() }.add(ConstTerminalItem(END_OF_INPUT))
+
+        // A -> aBpD 에서 FIRST(p) 가 FOLLOW(B) 에 들어간다. 추가로 p 가 empty 이면 FIRST(D) 도 FOLLOW(B) 에 들어간다.
+        for(rule in grammar.rules) {
+            for(production in rule.productions) {
+                for(i in production.indices) {
+                    val B = production[i]
+                    if(B is NonTerminalItem) {
+                        for(j in (i+1) until production.size) {
+                            val p = production[j]
+                            val firstOfP = getFirstSet(p)
+                            followSet.getOrPut(B) { mutableSetOf() }.addAll(firstOfP)
+                            val pCanEmpty = when(p) {
+                                is NonTerminalItem -> {
+                                    grammar.nonTerminalItemToProductions[p]?.canEmpty ?: throw IllegalArgumentException("unknown NonTerminal P ${p.name}")
+                                }
+                                is TerminalItem -> {
+                                    break
+                                }
+                            }
+                            if(!pCanEmpty) break
+                        }
+
+                    }
+                }
+            }
+        }
+
+        var changed: Boolean
+        do {
+            changed = false
+
+            for(rule in grammar.rules) {
+
+                val A = rule.nonTerminal
+
+                for(production in rule.productions) {
+
+                    for(i in production.indices) {
+                        val B = production[i]
+
+                        if(B !is NonTerminalItem) continue
+
+                        var canAllEmptyAfterB = true
+                        for(j in (i+1) until production.size) {
+
+                            val pCanEmpty = when(val p = production[j]) {
+                                is NonTerminalItem -> {
+                                    grammar.nonTerminalItemToProductions[p]?.canEmpty ?: throw IllegalArgumentException("unknown NonTerminal P ${p.name}")
+                                }
+                                is TerminalItem -> {
+                                    false
+                                }
+                            }
+
+                            if(!pCanEmpty) {
+                                canAllEmptyAfterB = false
+                                break
+                            }
+                        }
+
+                        if(canAllEmptyAfterB) {
+                            val beforeSize = followSet.getOrPut(B) { mutableSetOf() }.size
+                            followSet[B]?.addAll(followSet.getOrPut(A) { mutableSetOf() })  // FOLLOW(A) → FOLLOW(B)
+                            if (beforeSize != followSet[B]?.size) changed = true
+                        }
+                    }
+                }
+            }
+
+        } while(changed)
+    }
 }
