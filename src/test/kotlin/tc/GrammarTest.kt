@@ -2,9 +2,15 @@ package tc
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import parser.danLangBNF
 import parser.parseBNF
 
 class GrammarTest {
+
+    @Test
+    fun `danLang BNF parsing`() {
+        parseBNF(danLangBNF)
+    }
 
     @Test
     fun `simple BNF parsing`() {
