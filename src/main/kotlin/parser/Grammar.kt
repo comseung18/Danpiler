@@ -38,7 +38,15 @@ data class NonTerminalItem(
 
 data class Grammar(
     val rules: List<GrammarRule> // 모든 문법 규칙
-)
+) {
+    val nonTerminalItemToProductions: Map<NonTerminalItem, GrammarRule> by lazy {
+        mutableMapOf<NonTerminalItem, GrammarRule>().apply {
+            for(rule in rules) {
+                this@apply.put(rule.nonTerminal, rule)
+            }
+        }
+    }
+}
 
 
 fun parseBNF(bnf: String): Grammar {
