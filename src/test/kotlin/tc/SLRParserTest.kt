@@ -6,21 +6,6 @@ import parser.*
 class SLRParserTest {
 
     @Test
-    fun test() {
-        val bnf = """
-            <E> ::= <E> "+" <T> | <T>
-            <T> ::= <T> "*" <F> | <F>
-            <F> ::= "(" <E> ")" | "id"
-        """.trimIndent()
-
-        val grammar = parseBNF(bnf)
-        val parser = SLRParser(grammar, NonTerminalItem("E"))
-
-        printToFile(parser.exportToDot(), outputFileName = "slr_example", "png")
-
-    }
-
-    @Test
     fun testSimpleGrammar() {
         val bnf = """
             <S> ::= <A> "b"
