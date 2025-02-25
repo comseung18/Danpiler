@@ -11,6 +11,7 @@ abstract class LRParser(
 ) {
     sealed interface Action {
         data class Shift(val j: Int) : Action
+        data class EmptyShift(val j: Int): Action
         data class Reduce(
             val n: NonTerminalItem,
             val production: List<GrammarItem>
@@ -50,6 +51,11 @@ abstract class LRParser(
                     stack.push(act.j)
                     ++index
 
+                }
+
+                is Action.EmptyShift -> {
+                    println("empty shift ${stack.peek()} to ${act.j} by ε ")
+                    stack.push(act.j)
                 }
             }
         }
@@ -110,17 +116,16 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
                 val nextItems = rules.map { LR0Item(it.nonTerminal, it.production, it.dotIndex + 1) }
                 val nextLr0Collection = LR0ItemCollection(closure(nextItems.toSet()))
 
-                if(nextLr0Collection !in reverseLr0CollectionMap) {
+                val nextLr0CollectionIndex = reverseLr0CollectionMap[nextLr0Collection] ?: run {
                     lr0CollectionMap[collectionCounter] = nextLr0Collection
                     reverseLr0CollectionMap[nextLr0Collection] = collectionCounter
-
-                    goto[Pair(here, x)] = collectionCounter
-
                     q.add(collectionCounter)
+                    collectionCounter++
+                }
 
-                    ++collectionCounter
-                } else {
-                    goto[Pair(here, x)] = reverseLr0CollectionMap[nextLr0Collection]!!
+                goto[Pair(here, x)] = nextLr0CollectionIndex
+                if(x is NonTerminalItem && grammar.nonTerminalItemToProductions[x]?.canEmpty == true) {
+                    goto[Pair(here, emptyTerminalItem)] = nextLr0CollectionIndex
                 }
 
             }
@@ -173,7 +178,7 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
     }
 
     override fun action(s: Int, terminalItem: TerminalItem): Action {
-        val j = goto[s to terminalItem]
+        var j = goto[s to terminalItem]
         if(j != null) {
             return Action.Shift(j)
         }
@@ -195,6 +200,11 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
                 return Action.Accept
             }
             return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
+        }
+
+        j = goto[Pair(s, emptyTerminalItem)]
+        if(j != null) {
+            return Action.EmptyShift(j)
         }
 
         return Action.Error

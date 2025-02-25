@@ -31,6 +31,8 @@ data class ConstTerminalItem(
     override val value: String = name
 }
 
+val emptyTerminalItem = ConstTerminalItem("ε")
+
 
 data class NonTerminalItem(
     override val name: String,

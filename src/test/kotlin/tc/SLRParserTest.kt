@@ -18,6 +18,8 @@ class SLRParserTest {
         val input = listOf(ConstTerminalItem("a"), ConstTerminalItem("b"))
         val result = parser.parse(input)
 
+
+
         assertTrue(result, "Simple grammar should be parsed successfully")
     }
 
@@ -31,6 +33,8 @@ class SLRParserTest {
 
         val grammar = parseBNF(bnf)
         val parser = SLRParser(grammar, NonTerminalItem("E"))
+
+
 
         val input = listOf(ConstTerminalItem("id"), ConstTerminalItem("+"), ConstTerminalItem("id"))
         val result = parser.parse(input)
@@ -85,8 +89,6 @@ class SLRParserTest {
 
         val grammar = parseBNF(bnf)
         val parser = SLRParser(grammar, NonTerminalItem("Program"))
-
-         printToFile(parser.exportToDot())
 
         val input = listOf(
             ConstTerminalItem("class"), TokenTerminalItem(Token.IdentifierToken), ConstTerminalItem("{"),
