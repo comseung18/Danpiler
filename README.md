@@ -1,4 +1,3 @@
-
 # Danpiler
 Compilers : Principles, Techniques & Tools 를 읽고 어휘 분석기부터 중간 코드 생성과 코드 최적화까지 가능한 만큼 직접 구현해봅니다. 그 이름하야 단파일러 프로젝트!
 
@@ -24,47 +23,76 @@ DFA 변환 과정과 결과:
 ### Direct DFA
 **정규식**을 입력받아 NFA를 거치지 않고 곧바로 DFA를 생성합니다. 이 방식은 NFA를 생성한 뒤 DFA로 변환하는 방식보다 더 적은 상태를 가질 수 있습니다.
 
-## 토크나이저 (Tokenizer)
-### 개요
-토크나이저는 소스 코드를 분석하여 입력된 문자열을 **토큰(Token)** 단위로 나누는 역할을 합니다.
-각 토큰 타입은 정규식으로 정의되어 있으며, **NFA**를 통해 정의된 정규식을 **DFA**로 변환하여 토크나이징 성능을 최적화했습니다.
-
-### 주요 구현 사항
-1. **토큰 타입 정의**:
-   - 각 토큰 타입을 [Token.kt](src/main/kotlin/lexer/Token.kt) 파일에 정의했습니다.
-   - 정규식을 기반으로 각 토큰 타입에 대한 NFA를 생성합니다.
-
-2. **DFA 병합 및 상태 최소화**:
-   - 모든 토큰 타입의 NFA를 병합하여 단일 DFA로 변환한 후, 상태를 최소화합니다.
-   - 상태 최소화를 통해 메모리 사용량을 줄이고 성능을 향상시켰습니다.
-   - 완성된 그래프는 [PDF](src/test/kotlin/tokenizer.pdf)를 참고하세요. #감동 #실화 ( 브라우저에서 보면 깨져서 다운받아서 보세요 )
-
-3. **토큰 타입 해석**:
-   - DFA 상태에 매칭된 토큰 타입 중 우선순위를 통해 가장 적합한 토큰을 선택합니다.
-
-### 예시 코드
-#### 입력 코드
-```kotlin
-val input = "int x = 42;"
-val tokens = Tokenizer.tokenize(input)
-println(tokens)
-```
-
-#### 출력 결과
-```
-[
-    (KEYWORD, "int"),
-    (IDENTIFIER, "x"),
-    (OPERATOR, "="),
-    (NUMBER, "42"),
-    (SEMICOLON, ";")
-]
-```
-
-### 테스트
-- [TokenizerTest.kt](src/test/kotlin/tc/TokenizerTest.kt)에서 다양한 입력에 대한 테스트를 확인할 수 있습니다.
-- 예외 처리와 다양한 토큰 타입 매칭이 포함된 케이스를 테스트했습니다.
-
 ---
 
-이 프로젝트는 지속적으로 발전 중이며, 다음 목표는 **파서(Parser)** 구현입니다.
+## **파서 구현 (LR(0) → SLR(1))**
+
+### **1. LR(0) 오토마타 생성**
+BNF 문법을 입력받아 **LR(0) 오토마타를 생성**합니다.  
+각 상태(State)와 이동(Transition)을 그래픽으로 출력할 수 있으며,  
+DOT(Graphviz) 파일을 이용해 **오토마타를 시각적으로 확인**할 수 있습니다.
+
+- `closure()`를 이용해 **LR(0) 상태 집합을 계산**하고,
+- `goto()`를 통해 **각 상태에서의 전이(Transition)를 구성**합니다.
+
+### **2. SLR(1) 확장**
+SLR(1) 파서는 **LR(0) 파서에서 FollowSet을 추가로 고려하여 충돌을 줄인 버전**입니다.  
+이를 위해 [FirstFollowCalculator](src/main/kotlin/parser/parserUtils.kt)를 이용해 **First/Follow 집합을 계산**하고,  
+Shift/Reduce 충돌을 해결하여 보다 정교한 파싱이 가능합니다.
+
+#### 예시: SLR(1) 파싱 과정
+SLR(1) 파서가 어떻게 동작하는지 보여주기 위해, 다음과 같은 간단한 수식(Expression) 문법을 사용합니다:
+
+```
+<E> ::= <E> "+" <T> | <T>
+<T> ::= <T> "*" <F> | <F>
+<F> ::= "(" <E> ")" | "id"
+```
+
+이 문법을 기반으로 생성된 SLR(1) 상태 그래프는 다음과 같습니다:
+
+![SLR Graph](/src/test/kotlin/docsimage/slr_example.png)
+
+### **3. Action & Goto 테이블 구성**
+SLR(1) 파서는 **Action / Goto 테이블을 기반으로 동작**합니다.  
+각 상태에서 입력을 확인하고, **Shift, Reduce, Accept, Error** 처리를 수행합니다.
+
+```kotlin
+override fun action(s: Int, terminalItem: TerminalItem): Action {
+    val j = goto[s to terminalItem]
+    if (j != null) {
+        return Action.Shift(j)
+    }
+
+    val reduceItems = lr0CollectionMap[s]!!.items.filter { it.dotIndex == it.production.size &&
+        firstFollowCalculator.getFollowSet(it.nonTerminal).contains(terminalItem)
+    }
+
+    if (reduceItems.size > 1) {
+        throw IllegalArgumentException("grammar is not SLR(1)")
+    }
+
+    val reduceItem = reduceItems.firstOrNull()
+    if (reduceItem != null) {
+        if (reduceItem.nonTerminal == NonTerminalItem(root.name + "`")) {
+            return Action.Accept
+        }
+        return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
+    }
+
+    return Action.Error
+}
+```
+위 코드처럼 **Shift, Reduce, Accept, Error를 처리**하며,  
+SLR(1)에서는 FollowSet을 고려하여 Reduce를 수행합니다.
+
+### **4. 테스트 및 검증**
+SLR(1) 파서가 정상적으로 동작하는지 **여러 문법을 테스트하여 검증**하였습니다.
+[SLRParserTest.kt](src/test/kotlin/tc/SLRParserTest.kt) 에서 확인할 수 있습니다.
+
+#### ✅ **테스트 케이스**
+- **간단한 문법 테스트**
+- **수식(Expression) 문법 테스트**
+- **제어문 (if, while) 테스트**
+- **클래스/함수 선언을 테스트하여 복잡한 문법도 올바르게 파싱되는지 확인**
+

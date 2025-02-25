@@ -1,0 +1,37 @@
+digraph LR0_Automaton {
+  rankdir=LR;
+  0 [label="0:\n<E`> ->  • <E>\n<E> ->  • <E> + <T>\n<E> ->  • <T>\n<T> ->  • <T> * <F>\n<T> ->  • <F>\n<F> ->  • ( <E> )\n<F> ->  • id", shape=box];
+  1 [label="1:\n<E`> -> <E> • \n<E> -> <E> • + <T>", shape=box];
+  2 [label="2:\n<E> -> <T> • \n<T> -> <T> • * <F>", shape=box];
+  3 [label="3:\n<T> -> <F> • ", shape=box];
+  4 [label="4:\n<F> -> ( • <E> )\n<E> ->  • <E> + <T>\n<E> ->  • <T>\n<T> ->  • <T> * <F>\n<T> ->  • <F>\n<F> ->  • ( <E> )\n<F> ->  • id", shape=box];
+  5 [label="5:\n<F> -> id • ", shape=box];
+  6 [label="6:\n<E> -> <E> + • <T>\n<T> ->  • <T> * <F>\n<T> ->  • <F>\n<F> ->  • ( <E> )\n<F> ->  • id", shape=box];
+  7 [label="7:\n<T> -> <T> * • <F>\n<F> ->  • ( <E> )\n<F> ->  • id", shape=box];
+  8 [label="8:\n<F> -> ( <E> • )\n<E> -> <E> • + <T>", shape=box];
+  9 [label="9:\n<E> -> <E> + <T> • \n<T> -> <T> • * <F>", shape=box];
+  10 [label="10:\n<T> -> <T> * <F> • ", shape=box];
+  11 [label="11:\n<F> -> ( <E> ) • ", shape=box];
+  0 -> 1 [label="<E>"];
+  0 -> 2 [label="<T>"];
+  0 -> 3 [label="<F>"];
+  0 -> 4 [label="("];
+  0 -> 5 [label="id"];
+  1 -> 6 [label="+"];
+  2 -> 7 [label="*"];
+  4 -> 8 [label="<E>"];
+  4 -> 2 [label="<T>"];
+  4 -> 3 [label="<F>"];
+  4 -> 4 [label="("];
+  4 -> 5 [label="id"];
+  6 -> 9 [label="<T>"];
+  6 -> 3 [label="<F>"];
+  6 -> 4 [label="("];
+  6 -> 5 [label="id"];
+  7 -> 10 [label="<F>"];
+  7 -> 4 [label="("];
+  7 -> 5 [label="id"];
+  8 -> 11 [label=")"];
+  8 -> 6 [label="+"];
+  9 -> 7 [label="*"];
+}
