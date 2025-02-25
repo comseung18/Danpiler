@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import parser.*
 
-class ParserTest {
+class LR0AutomataTest {
 
     @Test
     fun testClosure() {
@@ -15,13 +15,13 @@ class ParserTest {
 
         val grammar = parseBNF(bnf)
 
-        val parser = LR0Parser(grammar, NonTerminalItem("S"))
+        val parser = SLRParser(grammar, NonTerminalItem("S"))
 
         // 초기 항목 설정: S → .A
         val initialItem = LR0Item(NonTerminalItem("S"), listOf(NonTerminalItem("A")), 0)
 
         // When: closure 함수 호출
-        val closureSet = parser.closure(LR0ItemCollection(setOf(initialItem)))
+        val closureSet = parser.closure(setOf(initialItem))
 
         // Then: closure 결과 검증
         val expectedItems = setOf(
@@ -30,7 +30,7 @@ class ParserTest {
             LR0Item(NonTerminalItem("A"), listOf(ConstTerminalItem("b")), 0)
         )
 
-        assertEquals(expectedItems, closureSet.items)
+        assertEquals(expectedItems, closureSet)
     }
 
     @Test
@@ -43,12 +43,12 @@ class ParserTest {
         """.trimIndent()
 
         val grammar = parseBNF(bnf)
-        val parser = LR0Parser(grammar, NonTerminalItem("S"))
+        val parser = SLRParser(grammar, NonTerminalItem("S"))
 
         // 초기 항목: S → .A B
         val initialItem = LR0Item(NonTerminalItem("S"), listOf(NonTerminalItem("A"), NonTerminalItem("B")), 0)
 
-        val closureSet = parser.closure(LR0ItemCollection(setOf(initialItem)))
+        val closureSet = parser.closure(setOf(initialItem))
 
         val expectedItems = setOf(
             LR0Item(NonTerminalItem("S"), listOf(NonTerminalItem("A"), NonTerminalItem("B")), 0),
@@ -56,7 +56,7 @@ class ParserTest {
             LR0Item(NonTerminalItem("A"), listOf(ConstTerminalItem("b")), 0)
         )
 
-        assertTrue(closureSet.items.containsAll(expectedItems))
+        assertTrue(closureSet.containsAll(expectedItems))
     }
 
     @Test
@@ -68,12 +68,12 @@ class ParserTest {
         """.trimIndent()
 
         val grammar = parseBNF(bnf)
-        val parser = LR0Parser(grammar, NonTerminalItem("E"))
+        val parser = SLRParser(grammar, NonTerminalItem("E"))
 
         // 초기 항목: E → .E + T | .T
         val initialItem = LR0Item(NonTerminalItem("E"), listOf(NonTerminalItem("E"), ConstTerminalItem("+"), NonTerminalItem("T")), 0)
 
-        val closureSet = parser.closure(LR0ItemCollection(setOf(initialItem)))
+        val closureSet = parser.closure(setOf(initialItem))
 
         val expectedItems = setOf(
             LR0Item(NonTerminalItem("E"), listOf(NonTerminalItem("E"), ConstTerminalItem("+"), NonTerminalItem("T")), 0),
@@ -83,7 +83,7 @@ class ParserTest {
             LR0Item(NonTerminalItem("F"), listOf(ConstTerminalItem("id")), 0)
         )
 
-        assertTrue(closureSet.items.containsAll(expectedItems))
+        assertTrue(closureSet.containsAll(expectedItems))
     }
 
     @Test
@@ -96,12 +96,12 @@ class ParserTest {
         """.trimIndent()
 
         val grammar = parseBNF(bnf)
-        val parser = LR0Parser(grammar, NonTerminalItem("S"))
+        val parser = SLRParser(grammar, NonTerminalItem("S"))
 
         // 초기 항목: S → .A
         val initialItem = LR0Item(NonTerminalItem("S"), listOf(NonTerminalItem("A")), 0)
 
-        val closureSet = parser.closure(LR0ItemCollection(setOf(initialItem)))
+        val closureSet = parser.closure(setOf(initialItem))
 
         val expectedItems = setOf(
             LR0Item(NonTerminalItem("S"), listOf(NonTerminalItem("A")), 0),
@@ -110,7 +110,7 @@ class ParserTest {
             LR0Item(NonTerminalItem("C"), listOf(ConstTerminalItem("c")), 0)
         )
 
-        assertEquals(expectedItems, closureSet.items)
+        assertEquals(expectedItems, closureSet)
     }
 
     @Test
@@ -158,7 +158,7 @@ class ParserTest {
         """.trimIndent()
 
         val grammar = parseBNF(bnf)
-        val parser = LR0Parser(grammar, NonTerminalItem("Program"))
+        val parser = SLRParser(grammar, NonTerminalItem("Program"))
 
         // 초기 항목: Program → .ClassDeclarations FunctionDeclarations
         val initialItem = LR0Item(
@@ -167,15 +167,15 @@ class ParserTest {
             0
         )
 
-        val closureSet = parser.closure(LR0ItemCollection(setOf(initialItem)))
+        val closureSet = parser.closure(setOf(initialItem))
 
         // Closure가 포함해야 할 예상 항목들
         val expectedItems = setOf(
             LR0Item(NonTerminalItem("Program"), listOf(NonTerminalItem("ClassDeclarations"), NonTerminalItem("FunctionDeclarations")), 0),
             LR0Item(NonTerminalItem("ClassDeclarations"), listOf(NonTerminalItem("ClassDeclaration"), NonTerminalItem("ClassDeclarations")), 0),
-            LR0Item(NonTerminalItem("ClassDeclaration"), listOf(ConstTerminalItem("class"), TokenTerminalItem("IdentifierToken", Token.IdentifierToken), ConstTerminalItem("{"), NonTerminalItem("ClassMembers"), ConstTerminalItem("}")), 0),
+            LR0Item(NonTerminalItem("ClassDeclaration"), listOf(ConstTerminalItem("class"), TokenTerminalItem(Token.IdentifierToken), ConstTerminalItem("{"), NonTerminalItem("ClassMembers"), ConstTerminalItem("}")), 0),
         )
 
-        assertTrue(closureSet.items.containsAll(expectedItems))
+        assertTrue(closureSet.containsAll(expectedItems))
     }
 }

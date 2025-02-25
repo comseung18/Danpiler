@@ -19,9 +19,9 @@ interface TerminalItem : GrammarItem {
 }
 
 data class TokenTerminalItem(
-    override val name: String,
     val token: Token,
 ) : TerminalItem {
+    override val name: String = token.tokenName
     override val value: String = token.tokenName
 }
 
@@ -90,7 +90,7 @@ fun parseBNF(bnf: String): Grammar {
 
                     Token.values().any { it.name == item } -> {
                         production.add(
-                            TokenTerminalItem(item, Token.valueOf(item))
+                            TokenTerminalItem(Token.valueOf(item))
                         )
                     }
 

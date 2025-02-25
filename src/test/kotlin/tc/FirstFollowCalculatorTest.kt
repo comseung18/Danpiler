@@ -88,12 +88,12 @@ class FirstFollowCalculatorTest {
 
         val expectedFirstSets = mapOf(
             "Stmt" to setOf(
-                TokenTerminalItem("IfToken", Token.IfToken),
-                TokenTerminalItem("IdentifierToken", Token.IdentifierToken)
+                TokenTerminalItem(Token.IfToken),
+                TokenTerminalItem(Token.IdentifierToken)
             ),
             "Expr" to setOf(
-                TokenTerminalItem("IdentifierToken", Token.IdentifierToken),
-                TokenTerminalItem("IntNumberToken", Token.IntNumberToken)
+                TokenTerminalItem(Token.IdentifierToken),
+                TokenTerminalItem(Token.IntNumberToken)
             )
         )
 
