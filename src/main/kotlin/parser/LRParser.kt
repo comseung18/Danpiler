@@ -22,7 +22,9 @@ abstract class LRParser(
 
     abstract val goto: MutableMap<Pair<Int, GrammarItem>, Int>
 
-    abstract fun exportToDot() : String
+    open fun exportToDot() : String {
+        return ""
+    }
 
     abstract fun action(
         s: Int,
@@ -236,7 +238,7 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
         return sb.toString()
     }
 
-    // 🔥 논터미널은 <>, 터미널은 그대로 출력하는 함수
+    // 논터미널은 <>, 터미널은 그대로 출력하는 함수
     private fun formatGrammarItem(item: GrammarItem): String {
         return when (item) {
             is NonTerminalItem -> "<${item.name}>" // 논터미널이면 <>로 감싸기
