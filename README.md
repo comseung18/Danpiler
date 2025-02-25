@@ -59,29 +59,37 @@ It determines **Shift, Reduce, Accept, and Error actions** based on the current 
 
 ```kotlin
 override fun action(s: Int, terminalItem: TerminalItem): Action {
-    val j = goto[s to terminalItem]
-    if (j != null) {
-        return Action.Shift(j)
-    }
-
-    val reduceItems = lr0CollectionMap[s]!!.items.filter { it.dotIndex == it.production.size &&
-        firstFollowCalculator.getFollowSet(it.nonTerminal).contains(terminalItem)
-    }
-
-    if (reduceItems.size > 1) {
-        throw IllegalArgumentException("grammar is not SLR(1)")
-    }
-
-    val reduceItem = reduceItems.firstOrNull()
-    if (reduceItem != null) {
-        if (reduceItem.nonTerminal == NonTerminalItem(root.name + "`")) {
-            return Action.Accept
+        var j = goto[s to terminalItem]
+        if(j != null) {
+            return Action.Shift(j)
         }
-        return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
-    }
 
-    return Action.Error
-}
+        // j is null
+        val c = lr0CollectionMap[s]!!
+
+        val reduceItems = c.items.filter { it.dotIndex == it.production.size &&
+                firstFollowCalculator.getFollowSet(it.nonTerminal).contains(terminalItem)
+        }
+        if(reduceItems.size > 1) {
+            throw IllegalArgumentException("grammar is not SLR(1)")
+        }
+
+        val reduceItem = reduceItems.firstOrNull()
+
+        if(reduceItem != null) {
+            if(reduceItem.nonTerminal == NonTerminalItem(root.name + "`")){
+                return Action.Accept
+            }
+            return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
+        }
+
+        j = goto[Pair(s, emptyTerminalItem)]
+        if(j != null) {
+            return Action.EmptyShift(j)
+        }
+
+        return Action.Error
+    }
 ```
 This function handles **Shift, Reduce, Accept, and Error actions**,  
 and SLR(1) parsing determines Reduce actions based on FollowSet.
