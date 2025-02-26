@@ -74,7 +74,7 @@ data class LR1Item(
     val nonTerminal: NonTerminalItem,
     val production: List<GrammarItem>,
     val dotIndex: Int,
-    val lookAhead: TerminalItem,
+    val lookAhead: Set<TerminalItem>,
 )
 
 data class LR0ItemCollection(
@@ -254,13 +254,13 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
     }
 }
 
-class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, root) {
+open class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, root) {
 
-    private var collectionCounter = 1
+    protected var collectionCounter = 1
 
     override val goto: MutableMap<Pair<Int, GrammarItem>, Int> = mutableMapOf()
-    private val reverseLr1CollectionMap : MutableMap<LR1ItemCollection, Int> = mutableMapOf()
-    private val lr1CollectionMap: MutableMap<Int, LR1ItemCollection> = mutableMapOf()
+    protected val reverseLr1CollectionMap : MutableMap<LR1ItemCollection, Int> = mutableMapOf()
+    protected val lr1CollectionMap: MutableMap<Int, LR1ItemCollection> = mutableMapOf()
     private val firstFollowCalculator = FirstFollowCalculator(grammar, root.name)
 
 
@@ -272,7 +272,7 @@ class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
                         NonTerminalItem(root.name + "`"),
                         listOf(root),
                         0,
-                        endTerminalItem
+                        setOf(endTerminalItem)
                     )
                 )
             )
@@ -326,10 +326,10 @@ class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
                             val first = if(item.dotIndex + 1 < item.production.size) {
                                 firstFollowCalculator.getFirstSetTwo(
                                     item.production[item.dotIndex+1],
-                                    item.lookAhead
+                                    item.lookAhead.first()
                                 )
                             } else {
-                                firstFollowCalculator.getFirstSet(item.lookAhead)
+                                firstFollowCalculator.getFirstSet(item.lookAhead.first())
                             }
 
                             first.forEach { b ->
@@ -337,7 +337,7 @@ class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
                                     gItem,
                                     production,
                                     0,
-                                    b
+                                    setOf(b)
                                 )
                                 if(!ret.contains(newItem) && newItems.add(newItem)) {
                                     changed = true
@@ -366,7 +366,7 @@ class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
         val c = lr1CollectionMap[s]!!
 
         val reduceItems = c.items.filter { it.dotIndex == it.production.size &&
-                it.lookAhead == terminalItem
+                it.lookAhead.first() == terminalItem
         }
         if(reduceItems.size > 1) {
             throw IllegalArgumentException("grammar is not SLR(1)")
@@ -399,7 +399,7 @@ class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
             val label = collection.items.joinToString("\\n") { item ->
                 val beforeDot = item.production.take(item.dotIndex).joinToString(" ") { formatGrammarItem(it) }
                 val afterDot = item.production.drop(item.dotIndex).joinToString(" ") { formatGrammarItem(it) }
-                "<${item.nonTerminal.name}> -> $beforeDot • $afterDot, ${formatGrammarItem(item.lookAhead)}"
+                "<${item.nonTerminal.name}> -> $beforeDot • $afterDot, ${item.lookAhead.joinToString(separator = "/") { formatGrammarItem(it) }}"
             }
             sb.append("  $index [label=\"$index:\\n$label\", shape=box];\n")
         }
