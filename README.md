@@ -25,23 +25,14 @@ A **regular expression** is converted directly into a DFA without passing throug
 
 ---
 
-## **Parser Implementation (LR(0) → SLR(1))**
+## **Parser Implementation (LR(0) → SLR(1) → LR(1) → LALR(1))**
 
-### **1. LR(0) Automaton Generation**
-A given BNF grammar is converted into an **LR(0) automaton**.  
-Each state and transition can be visualized graphically,  
-and the automaton can be examined using DOT (Graphviz) output.
+### **1. LR(1) Parsing Implementation**
+LR(1) parsing extends SLR(1) by incorporating **Lookahead symbols**, allowing for more precise parsing decisions.
+This approach prevents conflicts that occur in SLR(1) when FollowSets are not sufficient.
 
-- `closure()` is used to **compute LR(0) state sets**.
-- `goto()` is used to **construct state transitions**.
-
-### **2. SLR(1) Extension**
-SLR(1) parsing extends the **LR(0) parser by incorporating FollowSet** to reduce conflicts.
-Using [FirstFollowCalculator](src/main/kotlin/parser/parserUtils.kt), **First/Follow sets are computed**,
-allowing for a more refined parsing process by resolving Shift/Reduce conflicts.
-
-#### Example: SLR(1) Parsing Process
-To illustrate how the SLR(1) parser works, we use a simple arithmetic expression grammar:
+#### Example: LR(1) Parsing State Graph
+To demonstrate LR(1) parsing, the following expression grammar is used:
 
 ```
 <E> ::= <E> "+" <T> | <T>
@@ -49,57 +40,61 @@ To illustrate how the SLR(1) parser works, we use a simple arithmetic expression
 <F> ::= "(" <E> ")" | "id"
 ```
 
-The following is the SLR(1) state graph based on this grammar:
+Generated LR(1) state graph:
 
-![SLR Graph](/src/test/kotlin/docsimage/slr_example.png)
+![LR(1) Parsing State Graph](src/test/kotlin/docsimage/lr1_example.png)
+
+The LR(1) parsing state graph contains a large number of states, making it complex and difficult to interpret.
+
+### **2. LALR(1) Optimization**
+Although LR(1) parsing is powerful, it introduces a large number of states due to its use of Lookaheads.
+LALR(1) parsing optimizes this by merging LR(1) states that share the same LR(0) core while combining Lookaheads.
+
+This allows for a more efficient parsing table while maintaining LR(1) parsing accuracy.
+
+#### Example: LALR(1) Parsing State Graph
+![LALR(1) Parsing State Graph](src/test/kotlin/docsimage/lalr_example.png)
+As you can see, the number of states is significantly reduced.
 
 ### **3. Action & Goto Table Construction**
-SLR(1) parsing operates based on **Action / Goto tables**.  
-It determines **Shift, Reduce, Accept, and Error actions** based on the current state and input.
+LALR(1) operates using **compressed LR(1) tables**, maintaining strong parsing capabilities while reducing state complexity.
 
 ```kotlin
 override fun action(s: Int, terminalItem: TerminalItem): Action {
-        var j = goto[s to terminalItem]
-        if(j != null) {
-            return Action.Shift(j)
-        }
-
-        // j is null
-        val c = lr0CollectionMap[s]!!
-
-        val reduceItems = c.items.filter { it.dotIndex == it.production.size &&
-                firstFollowCalculator.getFollowSet(it.nonTerminal).contains(terminalItem)
-        }
-        if(reduceItems.size > 1) {
-            throw IllegalArgumentException("grammar is not SLR(1)")
-        }
-
-        val reduceItem = reduceItems.firstOrNull()
-
-        if(reduceItem != null) {
-            if(reduceItem.nonTerminal == NonTerminalItem(root.name + "`")){
-                return Action.Accept
-            }
-            return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
-        }
-
-        j = goto[Pair(s, emptyTerminalItem)]
-        if(j != null) {
-            return Action.EmptyShift(j)
-        }
-
-        return Action.Error
+    var j = goto[s to terminalItem]
+    if (j != null) {
+        return Action.Shift(j)
     }
+
+    val c = lr1CollectionMap[s]!!
+    val reduceItems = c.items.filter { it.dotIndex == it.production.size &&
+            it.lookAhead.contains(terminalItem)
+    }
+    if (reduceItems.size > 1) {
+        throw IllegalArgumentException("grammar is not LALR(1)")
+    }
+
+    val reduceItem = reduceItems.firstOrNull()
+
+    if (reduceItem != null) {
+        if (reduceItem.nonTerminal == NonTerminalItem(root.name + "`") && terminalItem == endTerminalItem) {
+            return Action.Accept
+        }
+        return Action.Reduce(reduceItem.nonTerminal, reduceItem.production)
+    }
+
+    return Action.Error
+}
 ```
-This function handles **Shift, Reduce, Accept, and Error actions**,  
-and SLR(1) parsing determines Reduce actions based on FollowSet.
+This function enables **Shift, Reduce, Accept, and Error actions** efficiently in the LALR(1) parsing model.
 
 ### **4. Testing & Validation**
-SLR(1) parsing is tested against various grammars to ensure correctness.  
-Refer to [SLRParserTest.kt](src/test/kotlin/tc/SLRParserTest.kt) for test cases.
+LALR(1) parsing has been thoroughly tested to validate its correctness across different grammars.
+Refer to [LALRParserTest.kt](src/test/kotlin/tc/LALRParserTest.kt) for test cases.
 
 #### ✅ **Test Cases**
 - **Simple grammar test**
 - **Expression grammar test**
 - **Control flow (if, while) test**
 - **Class/function declaration test to verify complex grammar parsing**
+
