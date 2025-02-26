@@ -7,6 +7,8 @@ abstract class LRParser(
     val grammar: Grammar,
     val root: NonTerminalItem
 ) {
+    var stackStartInt: Int = 0
+
     sealed interface Action {
         data class Shift(val j: Int) : Action
         data class EmptyShift(val j: Int): Action
@@ -31,7 +33,7 @@ abstract class LRParser(
 
     fun parse(input: List<TerminalItem>) : Boolean {
         val stack: Stack<Int> = Stack<Int>()
-        stack.push(0)
+        stack.push(stackStartInt)
 
         var index = 0
         while(index < input.size) {
@@ -366,10 +368,10 @@ open class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar
         val c = lr1CollectionMap[s]!!
 
         val reduceItems = c.items.filter { it.dotIndex == it.production.size &&
-                it.lookAhead.first() == terminalItem
+                it.lookAhead.contains(terminalItem)
         }
         if(reduceItems.size > 1) {
-            throw IllegalArgumentException("grammar is not SLR(1)")
+            throw IllegalArgumentException("grammar is not LR(1)")
         }
 
         val reduceItem = reduceItems.firstOrNull()
@@ -399,7 +401,7 @@ open class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar
             val label = collection.items.joinToString("\\n") { item ->
                 val beforeDot = item.production.take(item.dotIndex).joinToString(" ") { formatGrammarItem(it) }
                 val afterDot = item.production.drop(item.dotIndex).joinToString(" ") { formatGrammarItem(it) }
-                "<${item.nonTerminal.name}> -> $beforeDot • $afterDot, ${item.lookAhead.joinToString(separator = "/") { formatGrammarItem(it) }}"
+                "<${item.nonTerminal.name}> -> $beforeDot • $afterDot, ${item.lookAhead.joinToString(separator = " / ") { formatGrammarItem(it) }}"
             }
             sb.append("  $index [label=\"$index:\\n$label\", shape=box];\n")
         }
