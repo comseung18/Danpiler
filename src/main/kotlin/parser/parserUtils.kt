@@ -27,6 +27,14 @@ class FirstFollowCalculator(private val grammar: Grammar, private val startSymbo
         }
     }
 
+    fun getFirstSetTwo(a: GrammarItem, b: GrammarItem) : Set<TerminalItem> {
+        return if(a is NonTerminalItem && grammar.nonTerminalItemToProductions[a]?.canEmpty == true) {
+            getFirstSet(a) + getFirstSet(b)
+        } else {
+            getFirstSet(a)
+        }
+    }
+
     private fun calculateFirst() {
         var changed: Boolean
         do {

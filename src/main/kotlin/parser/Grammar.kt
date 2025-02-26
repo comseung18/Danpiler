@@ -32,7 +32,7 @@ data class ConstTerminalItem(
 }
 
 val emptyTerminalItem = ConstTerminalItem("ε")
-
+val endTerminalItem = ConstTerminalItem("$")
 
 data class NonTerminalItem(
     override val name: String,
