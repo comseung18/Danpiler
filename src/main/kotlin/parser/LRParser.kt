@@ -32,32 +32,33 @@ abstract class LRParser(
     ): Action
 
     fun parse(input: List<TerminalItem>) : Boolean {
-        val stack: Stack<Int> = Stack<Int>()
-        stack.push(stackStartInt)
+        val stack: Stack<Pair<Int, GrammarItem>> = Stack<Pair<Int, GrammarItem>>()
+        stack.push(stackStartInt to emptyTerminalItem)
 
         var index = 0
         while(index < input.size) {
             val a = input[index]
-            when(val act = action(stack.peek(), a)) {
+            when(val act = action(stack.peek().first, a)) {
                 Action.Accept -> return true
                 Action.Error -> return false
                 is Action.Reduce -> {
+
+                    val popTerminals = mutableListOf<GrammarItem>()
                     repeat(act.production.size) {
-                        println("stack pop: ${stack.pop()}")
+                        popTerminals.add(stack.pop().second)
                     }
-                    stack.push(goto[Pair(stack.peek(), act.n)])
-                    println("reduce(${stack.peek()}) : ${act.n.name} ::= ${act.production}")
+                    popTerminals.reverse()
+                    stack.push(goto[Pair(stack.peek().first, act.n)]!! to act.n)
+                    println("reduce(${stack.peek().first}) : ${act.n.name} ::= $popTerminals")
                 }
                 is Action.Shift -> {
-                    println("shift ${stack.peek()} to ${act.j} by $a ")
-                    stack.push(act.j)
+                    stack.push(act.j to a)
                     ++index
 
                 }
 
                 is Action.EmptyShift -> {
-                    println("empty shift ${stack.peek()} to ${act.j} by ε ")
-                    stack.push(act.j)
+                    stack.push(act.j to emptyTerminalItem)
                 }
             }
         }

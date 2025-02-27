@@ -1,6 +1,7 @@
 package parser
 
 import lexer.Token
+import javax.script.ScriptEngineManager
 
 const val EPSILON = "ε"
 
@@ -25,9 +26,19 @@ interface TerminalItem : GrammarItem {
 
 data class TokenTerminalItem(
     val token: Token,
+    override val value: String = "",
 ) : TerminalItem {
     override val name: String = token.tokenName
-    override val value: String = token.tokenName
+
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        if(other !is TokenTerminalItem) return false
+        return token == other.token
+    }
+
+    override fun hashCode(): Int {
+        return token.hashCode()
+    }
 }
 
 data class ConstTerminalItem(
@@ -59,7 +70,7 @@ data class Grammar(
 fun parseBNF(bnf: String): Grammar {
 
     // # 이후는 무시
-    // 문법은 <NonTerminal> ::= (<Terminal> or <NonTerminal>)+ | .. 의 형태이다.
+    // 문법은 <NonTerminal> ::= (<Terminal> or <NonTerminal>)+ { SemanticAction }? | ... 의 형태이다.
     val lines = bnf.lines().filter { it.isNotBlank() }.map { line ->
         line.trim().substringBefore("#")
     }
@@ -84,6 +95,19 @@ fun parseBNF(bnf: String): Grammar {
 
             val grammarItems = mutableListOf<GrammarItem>()
 
+            // find action
+            val actionStart = rule.indexOfFirst { it == '{' }
+            val actionEnd = rule.indexOfLast { it == '}' }
+            val action = if(actionStart in rule.indices && actionEnd in rule.indices && actionStart < actionEnd) {
+                {
+                    ScriptEngineManager().getEngineByExtension("kts").eval(rule.substring(actionStart, actionEnd + 1))
+                    Unit
+                }
+            } else {
+                null
+            }
+
+
             val ruleSplit = rule.trim().split(" ").filter { it.isNotBlank() }
             ruleSplit.forEach { item ->
                 when {
@@ -97,7 +121,7 @@ fun parseBNF(bnf: String): Grammar {
 
                     Token.values().any { it.name == item } -> {
                         grammarItems.add(
-                            TokenTerminalItem(Token.valueOf(item))
+                            TokenTerminalItem(Token.valueOf(item), "")
                         )
                     }
 
@@ -114,7 +138,7 @@ fun parseBNF(bnf: String): Grammar {
             }
 
             if (grammarItems.isNotEmpty()) {
-                productions.add(Production(grammarItems))
+                productions.add(Production(grammarItems, action))
             }
 
         }
