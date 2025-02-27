@@ -165,16 +165,16 @@ class SLRParser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar, roo
             val here = q.removeFirst()
             val rules = grammar.nonTerminalItemToProductions[here] ?: continue
             rules.productions.forEach { production ->
-                if (production.isNotEmpty()) {
+                if (production.items.isNotEmpty()) {
                     ret.add(
                         LR0Item(
                             here,
-                            production,
+                            production.items,
                             0
                         )
                     )
 
-                    val r = production.first()
+                    val r = production.items.first()
                     if(r is NonTerminalItem && !visited.contains(r)) {
                         q.add(r)
                         visited.add(r)
@@ -337,7 +337,7 @@ open class LR1Parser(grammar: Grammar, root: NonTerminalItem) : LRParser(grammar
                             first.forEach { b ->
                                 val newItem = LR1Item(
                                     gItem,
-                                    production,
+                                    production.items,
                                     0,
                                     setOf(b)
                                 )

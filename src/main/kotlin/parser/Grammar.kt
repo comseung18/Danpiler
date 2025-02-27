@@ -4,10 +4,15 @@ import lexer.Token
 
 const val EPSILON = "ε"
 
+data class Production(
+    val items: List<GrammarItem>,
+    val semanticAction: (() -> Unit)? = null
+)
+
 data class GrammarRule(
     val nonTerminal: NonTerminalItem, // 비종료 기호
     var canEmpty: Boolean,
-    val productions: List<List<GrammarItem>> // 생산 규칙: 여러 토큰 리스트
+    val productions: List<Production> // 생산 규칙: 여러 토큰 리스트
 )
 
 sealed interface GrammarItem {
@@ -71,19 +76,19 @@ fun parseBNF(bnf: String): Grammar {
         }
 
         val nonTerminalName = parts[0].removeSurrounding("<", ">")
-        val productions = mutableListOf<List<GrammarItem>>()
+        val productions = mutableListOf<Production>()
         var hasEpsilon = false
 
         val definitionPart = parts[1].split("|")
         definitionPart.forEach { rule ->
 
-            val production = mutableListOf<GrammarItem>()
+            val grammarItems = mutableListOf<GrammarItem>()
 
             val ruleSplit = rule.trim().split(" ").filter { it.isNotBlank() }
             ruleSplit.forEach { item ->
                 when {
                     item.startsWith("<") && item.endsWith(">") -> {
-                        production.add(
+                        grammarItems.add(
                             NonTerminalItem(
                                 item.removeSurrounding("<", ">"),
                             )
@@ -91,13 +96,13 @@ fun parseBNF(bnf: String): Grammar {
                     }
 
                     Token.values().any { it.name == item } -> {
-                        production.add(
+                        grammarItems.add(
                             TokenTerminalItem(Token.valueOf(item))
                         )
                     }
 
                     item.startsWith("\"") && item.endsWith("\"") -> {
-                        production.add(
+                        grammarItems.add(
                             ConstTerminalItem(
                                 item.removeSurrounding("\"", "\""),
                             )
@@ -108,8 +113,8 @@ fun parseBNF(bnf: String): Grammar {
                 }
             }
 
-            if (production.isNotEmpty()) {
-                productions.add(production)
+            if (grammarItems.isNotEmpty()) {
+                productions.add(Production(grammarItems))
             }
 
         }
@@ -133,8 +138,8 @@ fun parseBNF(bnf: String): Grammar {
         grammarRules.forEach { grammarRule ->
             if (!grammarRule.canEmpty) {
                 var allCanEmpty = true
-                grammarRule.productions.forEach { production ->
-                    production.forEach { item ->
+                grammarRule.productions.forEach l1@{ production ->
+                    production.items.forEach l2@{ item ->
                         when (item) {
                             is NonTerminalItem -> {
                                 val childCanEmpty = grammarRules.find { it.nonTerminal.name == item.name }?.canEmpty
@@ -142,17 +147,17 @@ fun parseBNF(bnf: String): Grammar {
 
                                 if (!childCanEmpty) {
                                     allCanEmpty = false
-                                    return@forEach
+                                    return@l2
                                 }
                             }
 
                             is TerminalItem -> {
                                 allCanEmpty = false
-                                return@forEach
+                                return@l2
                             }
                         }
                     }
-                    if (allCanEmpty) return@forEach
+                    if (allCanEmpty) return@l1
                 }
                 if (allCanEmpty) {
                     grammarRule.canEmpty = true

@@ -42,7 +42,7 @@ class FirstFollowCalculator(private val grammar: Grammar, private val startSymbo
             for(rule in grammar.rules) {
                 val beforeSize = firstSet[rule.nonTerminal]?.size ?: 0
                 for(production in rule.productions) {
-                    for(item in production) {
+                    for(item in production.items) {
                         when(item) {
                             is NonTerminalItem -> {
                                 firstSet.getOrPut(rule.nonTerminal) { mutableSetOf() }.addAll(
@@ -74,11 +74,11 @@ class FirstFollowCalculator(private val grammar: Grammar, private val startSymbo
         // A -> aBpD 에서 FIRST(p) 가 FOLLOW(B) 에 들어간다. 추가로 p 가 empty 이면 FIRST(D) 도 FOLLOW(B) 에 들어간다.
         for(rule in grammar.rules) {
             for(production in rule.productions) {
-                for(i in production.indices) {
-                    val B = production[i]
+                for(i in production.items.indices) {
+                    val B = production.items[i]
                     if(B is NonTerminalItem) {
-                        for(j in (i+1) until production.size) {
-                            val p = production[j]
+                        for(j in (i+1) until production.items.size) {
+                            val p = production.items[j]
                             val firstOfP = getFirstSet(p)
                             followSet.getOrPut(B) { mutableSetOf() }.addAll(firstOfP)
                             val pCanEmpty = when(p) {
@@ -107,15 +107,15 @@ class FirstFollowCalculator(private val grammar: Grammar, private val startSymbo
 
                 for(production in rule.productions) {
 
-                    for(i in production.indices) {
-                        val B = production[i]
+                    for(i in production.items.indices) {
+                        val B = production.items[i]
 
                         if(B !is NonTerminalItem) continue
 
                         var canAllEmptyAfterB = true
-                        for(j in (i+1) until production.size) {
+                        for(j in (i+1) until production.items.size) {
 
-                            val pCanEmpty = when(val p = production[j]) {
+                            val pCanEmpty = when(val p = production.items[j]) {
                                 is NonTerminalItem -> {
                                     grammar.nonTerminalItemToProductions[p]?.canEmpty ?: throw IllegalArgumentException("unknown NonTerminal P ${p.name}")
                                 }
