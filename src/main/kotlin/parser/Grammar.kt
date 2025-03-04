@@ -1,13 +1,13 @@
 package parser
 
 import lexer.Token
-import javax.script.ScriptEngineManager
+import java.util.*
 
 const val EPSILON = "ε"
-
+typealias SemanticActionType = (parseStack: Stack<Any>) -> Unit
 data class Production(
     val items: List<GrammarItem>,
-    val semanticAction: (() -> Unit)? = null
+    val semanticAction: SemanticActionType? = null
 )
 
 data class GrammarRule(
@@ -66,6 +66,53 @@ data class Grammar(
     }
 }
 
+data class BNFWithSDT(
+    val nonTerminal: String,
+    val canEmpty: Boolean,
+    val productions: List<Pair<String, SemanticActionType>>
+)
+
+fun BNFWithSDT.toGrammarRule() : GrammarRule {
+    return GrammarRule(
+        NonTerminalItem(this.nonTerminal),
+        this.canEmpty,
+        this.productions.map {
+            Production(
+                items = it.first.trim().split(" ").map { item ->
+                    when {
+                        item.startsWith("<") && item.endsWith(">") -> {
+                            NonTerminalItem(
+                                item.removeSurrounding("<", ">"),
+                            )
+                        }
+
+                        Token.values().any { t -> t.name == item } -> {
+                            TokenTerminalItem(Token.valueOf(item), "")
+                        }
+
+                        item.startsWith("\"") && item.endsWith("\"") -> {
+                            ConstTerminalItem(
+                                item.removeSurrounding("\"", "\""),
+                            )
+                        }
+
+                        else -> throw IllegalArgumentException("BNFWithSDT to GrammarRule Fail")
+                    }
+                },
+                semanticAction = it.second
+            )
+
+        }
+    )
+}
+
+fun List<BNFWithSDT>.toGrammar() : Grammar {
+    return Grammar(
+        this.map {
+            it.toGrammarRule()
+        }
+    )
+}
 
 fun parseBNF(bnf: String): Grammar {
 
@@ -94,19 +141,6 @@ fun parseBNF(bnf: String): Grammar {
         definitionPart.forEach { rule ->
 
             val grammarItems = mutableListOf<GrammarItem>()
-
-            // find action
-            val actionStart = rule.indexOfFirst { it == '{' }
-            val actionEnd = rule.indexOfLast { it == '}' }
-            val action = if(actionStart in rule.indices && actionEnd in rule.indices && actionStart < actionEnd) {
-                {
-                    ScriptEngineManager().getEngineByExtension("kts").eval(rule.substring(actionStart, actionEnd + 1))
-                    Unit
-                }
-            } else {
-                null
-            }
-
 
             val ruleSplit = rule.trim().split(" ").filter { it.isNotBlank() }
             ruleSplit.forEach { item ->
@@ -138,7 +172,7 @@ fun parseBNF(bnf: String): Grammar {
             }
 
             if (grammarItems.isNotEmpty()) {
-                productions.add(Production(grammarItems, action))
+                productions.add(Production(grammarItems))
             }
 
         }

@@ -4,6 +4,9 @@ import DFA
 import DFA.Companion.stateMinimizedDFA
 import NFA
 import Node
+import parser.TerminalItem
+import parser.TokenTerminalItem
+import parser.endTerminalItem
 import union
 
 object Tokenizer {
@@ -83,6 +86,10 @@ object Tokenizer {
         }
 
         return tokens
+    }
+
+    fun tokenizeForLRParse(input: String) : List<TerminalItem> {
+        return tokenize(input).map { TokenTerminalItem(it.first, it.second) } + endTerminalItem
     }
 
 }

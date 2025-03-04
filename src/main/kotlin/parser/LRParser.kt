@@ -31,7 +31,7 @@ abstract class LRParser(
         terminalItem: TerminalItem
     ): Action
 
-    fun parse(input: List<TerminalItem>) : Boolean {
+    open fun parse(input: List<TerminalItem>) : Boolean {
         val stack: Stack<Pair<Int, GrammarItem>> = Stack<Pair<Int, GrammarItem>>()
         stack.push(stackStartInt to emptyTerminalItem)
 

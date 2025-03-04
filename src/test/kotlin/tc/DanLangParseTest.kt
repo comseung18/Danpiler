@@ -4,7 +4,6 @@ import lexer.Tokenizer
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import parser.*
-import printToFile
 
 class DanLangParseTest {
     @Test
@@ -21,8 +20,7 @@ class DanLangParseTest {
             }
         """.trimIndent()
 
-        val inputTokenized = Tokenizer.tokenize(input).map { TokenTerminalItem(it.first, it.second)} + endTerminalItem
-
+        val inputTokenized = Tokenizer.tokenizeForLRParse(input)
         assertTrue(parser.parse(inputTokenized))
 
     }

@@ -14,7 +14,7 @@ fun LR1Item.toLR0Item() : LR0Item {
     )
 }
 
-class LALRParser(grammar: Grammar, root: NonTerminalItem) : LR1Parser(grammar, root) {
+open class LALRParser(grammar: Grammar, root: NonTerminalItem) : LR1Parser(grammar, root) {
 
     init {
         val lR1CollectionGroup =
