@@ -1,6 +1,8 @@
 # Danpiler
 This is the Danpiler project, where I implement everything from lexical analysis to intermediate code generation and optimization based on "Compilers: Principles, Techniques & Tools."
 
+---
+
 ## Lexical Analyzer
 
 ### NFA
@@ -41,7 +43,6 @@ To demonstrate LR(1) parsing, the following expression grammar is used:
 ```
 
 Generated LR(1) state graph:
-
 ![LR(1) Parsing State Graph](src/test/kotlin/docsimage/lr1_example.png)
 
 The LR(1) parsing state graph contains a large number of states, making it complex and difficult to interpret.
@@ -88,13 +89,40 @@ override fun action(s: Int, terminalItem: TerminalItem): Action {
 ```
 This function enables **Shift, Reduce, Accept, and Error actions** efficiently in the LALR(1) parsing model.
 
-### **4. Testing & Validation**
-LALR(1) parsing has been thoroughly tested to validate its correctness across different grammars.
-Refer to [LALRParserTest.kt](src/test/kotlin/tc/LALRParserTest.kt) for test cases.
+---
 
-#### ✅ **Test Cases**
-- **Simple grammar test**
-- **Expression grammar test**
-- **Control flow (if, while) test**
-- **Class/function declaration test to verify complex grammar parsing**
+## **Abstract Syntax Tree (AST) Implementation**
+
+### **DanLang: A Custom Programming Language**
+DanLang is a C-like programming language designed for educational purposes. It includes:
+- Primitive data types: `int`, `float`, `string`, `boolean`
+- Statements ending with `;`
+- Control structures: `for`, `while`, `if`, `else if`, `else`
+- Functions with a return type, parameters, and block scope
+- Classes with member variables and functions (no inheritance)
+- Object creation using `new` and memory deallocation with `delete`
+- Operator precedence: `*`, `/` have higher precedence than `+`, `-`
+
+### **AST Representation in DanLang**
+DanLang's AST is built using `DanLangASTNode` structures, where each non-terminal has a corresponding node type.
+
+#### Example: AST for 
+```
+int main() {
+    int x = 3 + 4 * 5;
+    return 0;
+}
+```
+
+#### **Example AST Visualization**
+![ast example](src/test/kotlin/docsimage/ast_example.png)
+
+---
+
+## **Next Steps**
+- **Semantic Analysis**: Type checking, variable scope validation
+- **Intermediate Code Generation**: Convert AST to three-address code (TAC)
+- **Optimization & Code Generation**: Dead code elimination, register allocation
+
+DanLang is now a fully functional language, with parsing and AST generation successfully implemented! 🚀
 

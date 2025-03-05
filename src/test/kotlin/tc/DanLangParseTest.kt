@@ -30,7 +30,8 @@ class DanLangParseTest {
     fun astTest() {
         val input = """
             int main() {
-                int x = 2*3 + 5 / 3 + 2 * 6;
+                int x = 3 + 4 * 5;
+                return 0;
             }
         """.trimIndent()
 
@@ -39,7 +40,7 @@ class DanLangParseTest {
         assertNotNull(root)
         if(root != null) {
             (root as? DanLangASTNode)?.toDot()?.let {
-                printToFile(it)
+                printToFile(it, "ast_example", "png")
             }
 
         }
