@@ -62,7 +62,7 @@ const val danLangBNF = "<Program> ::= <ClassDeclarations> <FunctionDeclarations>
 
         "<Term> ::= <Factor> <TermTail>\n" +
 
-        "<TermTail> ::= ArithmeticOperatorToken <Factor> <TermTail> | ε\n" +
+        "<TermTail> ::= PriorityArithmeticOperatorToken <Factor> <TermTail> | ε\n" +
 
         "<Factor> ::= IdentifierToken | IntNumberToken | FloatNumberToken | LParenToken <Expression> RParenToken | <FunctionCall>\n"
 
@@ -517,7 +517,7 @@ private val danLangBNFWithSDT: List<BNFWithSDT> = listOf(
     ),
     BNFWithSDT("TermTail", true,
         listOf(
-            "ArithmeticOperatorToken <Factor> <TermTail>" to { stack ->
+            "PriorityArithmeticOperatorToken <Factor> <TermTail>" to { stack ->
                 val tail = stack.pop().second as? DanLangASTNode
                 val factor = stack.pop().second as? DanLangASTNode
                 val op = (stack.pop().second as? TokenTerminalItem)?.value

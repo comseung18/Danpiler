@@ -88,6 +88,8 @@ data class AccessModifier(
     val access: String? = null
 ) : DanLangASTNode {
     override val children: List<ASTNode> = emptyList()
+    override val dotDesc: String
+        get() = access ?: ""
 }
 
 data class FunctionDeclarations(
@@ -313,6 +315,8 @@ data class ExpressionTail(
     val tail: DanLangASTNode? = null,
 ) : DanLangASTNode {
     override val children: List<ASTNode> = listOfNotNull(term, tail)
+    override val dotDesc: String
+        get() = "$op"
 }
 
 data class Term(

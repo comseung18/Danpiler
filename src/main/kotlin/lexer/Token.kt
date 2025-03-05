@@ -43,7 +43,8 @@ enum class Token(
     TypeToken(types.joinToString(separator = "|")),
 
     // Operators
-    ArithmeticOperatorToken("\\+|\\-|\\*|\\/"),     // +, -, *, /
+    PriorityArithmeticOperatorToken("\\*|\\/"),
+    ArithmeticOperatorToken("\\+|\\-"),
     ComparisonOperatorToken("==|!=|<|>|<=|>="),    // ==, !=, <, >, <=, >=
     AssignmentOperatorToken("="),             // =
     CompoundAssignmentOperator("\\+=|\\-="),             // =, +=
