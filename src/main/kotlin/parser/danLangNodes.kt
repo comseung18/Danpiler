@@ -6,6 +6,39 @@ interface NodeHasId : ASTNode {
 
 interface DanLangASTNode : ASTNode {
     val children: List<ASTNode>
+    val dotDesc: String
+        get() = ""
+}
+
+fun DanLangASTNode.toDot(): String {
+    fun buildDot(node: DanLangASTNode, sb: StringBuilder, parentId: String) {
+        val nodeId = System.identityHashCode(node).toString() // 유일한 ID 생성
+        var nodeLabel = node.javaClass.simpleName // 노드의 클래스 이름을 라벨로 사용
+
+        // 만약 id를 가진 노드라면, id 값도 포함
+        if (node is NodeHasId && node.id != null) {
+            nodeLabel += "\\n(id: ${node.id})"
+        }
+        if(node.dotDesc.isNotEmpty()) {
+            nodeLabel += "\\n${node.dotDesc}"
+        }
+
+        sb.append("  \"$nodeId\" [label=\"$nodeLabel\"];\n")
+        sb.append("  \"$parentId\" -> \"$nodeId\";\n")
+
+        for (child in node.children) {
+            if (child is DanLangASTNode) {
+                buildDot(child, sb, nodeId)
+            }
+        }
+    }
+
+    val sb = StringBuilder()
+    sb.append("digraph AST {\n")
+    sb.append("  node [shape=ellipse, fontname=\"Courier\"];\n") // 노드 스타일 지정
+    buildDot(this, sb, "root")
+    sb.append("}")
+    return sb.toString()
 }
 
 data class Program(
@@ -104,6 +137,8 @@ data class Type(
     val isArray: Boolean
 ) : DanLangASTNode {
     override val children: List<ASTNode> = emptyList()
+    override val dotDesc: String
+        get() = type + if(isArray) "[]" else ""
 }
 
 data class Statements(
@@ -295,6 +330,8 @@ data class TermTail(
     val tail: DanLangASTNode? = null,
 ) : DanLangASTNode {
     override val children: List<ASTNode> = listOfNotNull(factor, tail)
+    override val dotDesc: String
+        get() = "$op"
 }
 
 data class Factor(
@@ -307,4 +344,7 @@ data class Factor(
     override val children: List<ASTNode> = listOfNotNull(
         expression, functionCall
     )
+
+    override val dotDesc: String
+        get() = intNumber?.toString() ?: floatNumber?.toString() ?: ""
 }

@@ -31,6 +31,10 @@ abstract class LRParser(
         terminalItem: TerminalItem
     ): Action
 
+    open fun parseAST(input: List<TerminalItem>) : ASTNode? {
+        return null
+    }
+
     open fun parse(input: List<TerminalItem>) : Boolean {
         val stack: Stack<Pair<Int, GrammarItem>> = Stack<Pair<Int, GrammarItem>>()
         stack.push(stackStartInt to emptyTerminalItem)
