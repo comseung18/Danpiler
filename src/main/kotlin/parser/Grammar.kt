@@ -3,8 +3,10 @@ package parser
 import lexer.Token
 import java.util.*
 
+interface ASTNode
 const val EPSILON = "ε"
-typealias SemanticActionType = (parseStack: Stack<Any>) -> Unit
+typealias SemanticActionType = (parseStack: Stack<Pair<Int, Any>>) -> ASTNode
+
 data class Production(
     val items: List<GrammarItem>,
     val semanticAction: SemanticActionType? = null

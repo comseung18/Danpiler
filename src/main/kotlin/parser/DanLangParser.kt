@@ -8,7 +8,7 @@ import java.util.*
 class DanLangParser : LALRParser(danLangGrammar, NonTerminalItem("Program")) {
 
     override fun parse(input: List<TerminalItem>) : Boolean {
-        val stack: Stack<Pair<Int, GrammarItem>> = Stack<Pair<Int, GrammarItem>>()
+        val stack: Stack<Pair<Int, Any>> = Stack()
         stack.push(stackStartInt to emptyTerminalItem)
 
         var index = 0
@@ -18,19 +18,15 @@ class DanLangParser : LALRParser(danLangGrammar, NonTerminalItem("Program")) {
                 Action.Accept -> return true
                 Action.Error -> return false
                 is Action.Reduce -> {
+                    val node = grammar.nonTerminalItemToProductions[act.n]!!.productions.find {
+                        it.items == act.production
+                    }!!.semanticAction?.invoke(stack)!!
 
-                    val popTerminals = mutableListOf<GrammarItem>()
-                    repeat(act.production.size) {
-                        popTerminals.add(stack.pop().second)
-                    }
-                    popTerminals.reverse()
-                    stack.push(goto[Pair(stack.peek().first, act.n)]!! to act.n)
-                    println("reduce(${stack.peek().first}) : ${act.n.name} ::= $popTerminals")
+                    stack.push(goto[Pair(stack.peek().first, act.n)]!! to node)
                 }
                 is Action.Shift -> {
                     stack.push(act.j to a)
                     ++index
-
                 }
 
                 is Action.EmptyShift -> {

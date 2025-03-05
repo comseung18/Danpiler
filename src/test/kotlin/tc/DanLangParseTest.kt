@@ -9,9 +9,7 @@ class DanLangParseTest {
     @Test
     fun test() {
 
-        val grammar = parseBNF(danLangBNF)
-        val parser = LALRParser(grammar, NonTerminalItem("Program"))
-
+        val parser = DanLangParser()
         val input = """
             int main() {
                 int x = 1;
