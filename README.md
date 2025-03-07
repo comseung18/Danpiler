@@ -1,11 +1,9 @@
 # Danpiler
 This is the Danpiler project, where I implement everything from lexical analysis to intermediate code generation and optimization based on "Compilers: Principles, Techniques & Tools."
 
----
-
 ## Lexical Analyzer
 
-### NFA
+### **1. NFA**
 Given a **regular expression**, it is converted into an **NFA (Nondeterministic Finite Automaton)**, which can then be visualized graphically.
 
 The input regular expression can be converted into an [NFA](src/main/kotlin/NFA.kt). The resulting NFA can be used for regular expression matching. Refer to [NFATest.kt](src/test/kotlin/tc/NFATest.kt) for details.
@@ -14,7 +12,7 @@ The input regular expression can be converted into an [NFA](src/main/kotlin/NFA.
 NFA construction process and result:
 ![NFA Example](src/test/kotlin/docsimage/nfa_example.png)
 
-### DFA
+### **2. DFA**
 A given **regular expression** is converted into an **NFA** and then transformed into a **DFA (Deterministic Finite Automaton)**, which can be visualized graphically.
 DFA provides more efficient regular expression matching than NFA by minimizing unnecessary states.
 
@@ -22,8 +20,68 @@ DFA provides more efficient regular expression matching than NFA by minimizing u
 DFA transformation process and result:
 ![DFA Example](src/test/kotlin/docsimage/dfa_example.png)
 
-### Direct DFA
+### **3. Direct DFA**
 A **regular expression** is converted directly into a DFA without passing through an NFA. This approach can result in fewer states compared to the traditional NFA-to-DFA transformation.
+
+### **4. Tokenizer**
+The **tokenizer** is responsible for breaking down an input string into **tokens**. It utilizes **DFA-based tokenization**, ensuring efficient lexical analysis.
+
+#### **4.1. Token Definitions**
+Each token is defined using regular expressions in `Token.kt`. Examples include:
+
+- **Integer (IntNumberToken):** `[0-9]+`
+- **Identifier (IdentifierToken):** `([a-zA-Z_][a-zA-Z0-9_]*)`
+- **Operators (ArithmeticOperatorToken):** `(+|\-|\*|\/)`
+- **Control Structures (ForToken, IfToken, WhileToken, etc.):** `"for"`, `"if"`, `"while"`
+
+These regular expressions are converted into **NFA → DFA**, resulting in an optimized state machine.
+
+#### **4.2. Tokenization Process**
+The tokenizer follows these steps, as implemented in `Tokenizer.kt`:
+
+1. **Read input string**
+2. **Use the DFA to find the longest matching token**
+3. **Convert the matched string into a token**
+4. **Ignore whitespace and comments, returning valid tokens only**
+
+Example:
+```kotlin
+val input = "int x = 42;"
+val tokens = Tokenizer.tokenize(input)
+println(tokens) 
+// Output: [(TypeToken, "int"), (IdentifierToken, "x"), (AssignmentOperatorToken, "="), (IntNumberToken, "42"), (SemicolonToken, ";")]
+```
+
+#### **4.3. DFA-Based Tokenization**
+Tokenization is performed using a **DFA-based approach** for efficiency:
+
+- **NFA Generation:** Convert each token into an NFA
+- **NFA Merging:** Combine all NFAs into one
+- **DFA Conversion:** Transform the NFA into a DFA
+- **DFA Minimization:** Remove redundant states for optimization
+
+This results in a highly efficient tokenizer.
+
+#### **4.4. Tokenization Example**
+Below is a test case from `TokenizerTest.kt`:
+
+```kotlin
+@Test
+fun `test multiple valid tokens with whitespace`() {
+    val input = "123 + 456"
+    val expectedTokens = listOf(
+        Token.IntNumberToken to "123",
+        Token.ArithmeticOperatorToken to "+",
+        Token.IntNumberToken to "456"
+    )
+    val actualTokens = Tokenizer.tokenize(input)
+    assertEquals(expectedTokens, actualTokens)
+}
+```
+
+#### **4.5. Tokenization Visualization**
+DFA-based tokenization process:
+[Tokenizer DFA.pdf](src/test/kotlin/tokenizer.pdf)
 
 ---
 
@@ -38,11 +96,12 @@ To demonstrate LR(1) parsing, the following expression grammar is used:
 
 ```
 <E> ::= <E> "+" <T> | <T>
-<T> ::= <T> "*" <F> | <F>
+<T> ::= <T> "\*" <F> | <F>
 <F> ::= "(" <E> ")" | "id"
 ```
 
 Generated LR(1) state graph:
+
 ![LR(1) Parsing State Graph](src/test/kotlin/docsimage/lr1_example.png)
 
 The LR(1) parsing state graph contains a large number of states, making it complex and difficult to interpret.
@@ -106,7 +165,7 @@ DanLang is a C-like programming language designed for educational purposes. It i
 ### **AST Representation in DanLang**
 DanLang's AST is built using `DanLangASTNode` structures, where each non-terminal has a corresponding node type.
 
-#### Example: AST for 
+#### Example: AST for
 ```
 int main() {
     int x = 3 + 4 * 5;
@@ -125,4 +184,3 @@ int main() {
 - **Optimization & Code Generation**: Dead code elimination, register allocation
 
 DanLang is now a fully functional language, with parsing and AST generation successfully implemented! 🚀
-
